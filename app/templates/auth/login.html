@@ -6,16 +6,19 @@
 <div class="col-md-12 col-md-offset-1">
 <h3>LOGIN</h3>
 
-    <form class="" action="index.html" method="post">
+    <form class=""  method="post">
     
-    <div class="form-group">
-            {{ render_field(form.username, class='form_control', placeholder='Usuario') }}
-    </div>
+      <div class="form-group">
+        {{ render_field(form.username, class='form-control', placeholder='Usuario') }}
+      </div>
 
-    <div class="form-group">
-            {{ render_field(form.password, class='form_control', placeholder='Contraseña') }}
-    </div>
+      <div class="form-group">
+        {{ render_field(form.password, class='form-control', placeholder='password') }}
+      </div>
 
+      <button type="submit" class="btn btn-primary" name="button">
+        Login
+      </button>
     </form>
 
 </div>

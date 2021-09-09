@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask import render_template
+from flask import render_template,request
 
 from .forms import LoginForm
 
@@ -18,7 +18,14 @@ def index():
     return render_template('index.html', title='Inicio')
 
     
-@pagina.route('/login')
+@pagina.route('/login', methods=['GET','POST'])
 def login():
-    form = LoginForm()
+    form = LoginForm(request.form)
+    if request.method =='POST':
+        #se imprime los datos
+        print(form.username.data)
+        print(form.password.data)
+        #se imprime en consola
+        print("¡Una Nueva secion creada!")
+
     return render_template('auth/login.html', title='Login',form=form)
