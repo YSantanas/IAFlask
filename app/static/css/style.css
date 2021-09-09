@@ -1,14 +1,3 @@
-.view {
-    background-image: url('https://drive.google.com/uc?export?view&id=1CHHEzBEV0L0C5lb_YBQR4M5-kJemWigm')no-repeat center center;
-    background-size: cover;
-}
-html,
-body,
-header,
-.view {
-  height: 100%;
-}
-
 body {
     background-color: #ffffff;
     font-size: 11.5px;
