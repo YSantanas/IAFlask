@@ -1,3 +1,14 @@
+.view {
+    background-image: url('./img')no-repeat center center;
+    background-size: cover;
+}
+html,
+body,
+header,
+.view {
+  height: 100%;
+}
+
 body {
     background-color: #04329e;
     font-size: 11.5px;
@@ -5,7 +16,7 @@ body {
     color: rgb(189, 196, 203)
 }
 .footer {
-    background-image: url("https://i.stack.imgur.com/AZ2Xw.png");
+
     background-position: center center;
     background-repeat: no-repeat;
     width: 100%;
