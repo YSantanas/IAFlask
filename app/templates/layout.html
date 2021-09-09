@@ -1,0 +1,111 @@
+{% extends 'bootstrap/base.html' %}
+
+
+{% block title %}
+   {{  title }}
+{% endblock %}
+
+
+{% block navbar %}
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-info">
+        <a class="navbar-brand text-white" href="#">Inteligencia Artificial</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto topnav">
+                <li class="nav-item active">
+                    <a class="nav-link text-white" href="#">Inicio <span class="sr-only">(current)</span></a>
+                </li>
+              
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#">Acerca</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Ejercicios
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Ejercicio 1</a>
+                        <a class="dropdown-item" href="#">Ejercicio 2</a>
+                        <a class="dropdown-item" href="#">Ejercicio 3</a>
+                        <a class="dropdown-item" href="#">Ejercicio 4</a>
+                        <a class="dropdown-item" href="#">Ejercicio 5</a>
+                        <a class="dropdown-item" href="#">Ejercicio 6</a>                    
+                        <a class="dropdown-item" href="#">Ejercicio 7</a>
+                        <a class="dropdown-item" href="#">Ejercicio 8</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#">Contacto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-warning mr-sm-1 text-white" type="button" href="#" data-toggle="modal" data-target="#myModal">Login</a>                  
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary mr-sm-1" type="button" href="#" data-toggle="modal" data-target="#myModal">Registrar</a>
+                </li>
+            </ul>
+        </div>
+
+            <!-- The Modal -->
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Login</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form>
+                        <label class="sr-only" for="usrname">Username</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Usuario" aria-label="Usuario" aria-describedby="basic-addon1">
+                        </div>
+
+
+                        <label class="sr-only" for="Password">Name</label>
+                        <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon2"><i class="fa fa-key"></i></span>
+                            </div>
+                            <input id="Password" type="password" class="form-control" placeholder="Contraseña" aria-label="Contraseña" aria-describedby="basic-addon2">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning" >Login</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+            
+
+    </nav>
+    </br>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+        {% block container %}
+
+        {% endblock %}
+
+        </div>
+    </div>    
+{% endblock %}
