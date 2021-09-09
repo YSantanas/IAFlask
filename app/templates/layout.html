@@ -1,11 +1,26 @@
 {% extends 'bootstrap/base.html' %}
 
+<!DOCTYPE html>
+<html lang="en">
 
 {% block title %}
    {{  title }}
 {% endblock %}
 
-{% include 'header.html' %}
+
+
+{% block head %}
+	{{ super() }}
+	<meta charset="utf-8">
+	<title> Arduino Projects example webpage </title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% endblock %}
+
+<body>
+
 
 {% block navbar %}
 
@@ -63,14 +78,48 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="row">
-        {% block container %}
 
-        {% endblock %}
+HOla
 
+{% block footer %} 
+
+<!-- Footer -->
+<footer class="page-footer font-small mdb-color darken-3 pt-4">
+
+  <!-- Footer Elements -->
+  <div class="container">
+
+    <!--Grid row-->
+    <div class="row d-flex justify-content-center">
+
+      <!--Grid column-->
+      <div class="col-md-4">
+
+        <!-- Video -->
+        <div class="embed-responsive embed-responsive-16by9 mb-4">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/vlDzYIIOYmM"
+            allowfullscreen></iframe>
         </div>
-    </div>    
+
+      </div>
+      <!--Grid column-->
+
+    </div>
+    <!--Grid row-->
+
+  </div>
+  <!-- Footer Elements -->
+
+  <!-- Copyright -->
+  <div class="footer-copyright text-center py-3">© 2021 Copyright:
+    <a href="https://mdbootstrap.com/"> M. Yvette Santana Sánchez</a>
+  </div>
+  <!-- Copyright -->
+
+</footer>
+<!-- Footer -->
 {% endblock %}
 
-{% include 'footer.html' %}
+{% endblock %}
+</body>
+</html>
