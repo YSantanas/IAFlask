@@ -1,5 +1,5 @@
 .view {
-    background-image: url('../img/logo.jpg')no-repeat center center;
+    background-image: url('app/static/img/logo.jpg')no-repeat center center;
     background-size: cover;
 }
 html,
