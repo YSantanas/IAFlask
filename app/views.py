@@ -38,6 +38,14 @@ def login():
 def read_csv():
     if request.method =='POST':
         flask_file = request.files['file']
+
+        confianza = request.form['confianza']
+        soporte = request.form['soporte']
+        elevacion = request.form['elevacion']
+        print(confianza)
+        print(soporte)
+        print(elevacion)
+        
         # if not a CSV file, return error
         if not flask_file.filename.endswith('.csv'):
             return make_response(jsonify({"message": "Seleccione un archivo CSV"}), 400)
