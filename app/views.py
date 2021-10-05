@@ -21,7 +21,7 @@ def pagina_no_encontrada(error):#parametro obligatorio, todo error regresa dos p
 @pagina.route('/')
 def index():
     return render_template('index.html', title='Inicio')
-
+"""
 @pagina.route('/login', methods=['GET','POST'])
 def login():
     form = LoginForm(request.form)
@@ -33,7 +33,7 @@ def login():
         print("¡Una Nueva secion creada!")
 
     return render_template('auth/login.html', title='Login',form=form)
-
+"""
 @pagina.route('/read_csv', methods=['POST'])
 def read_csv():
     if request.method =='POST':
