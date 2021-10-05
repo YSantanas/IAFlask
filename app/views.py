@@ -8,6 +8,12 @@ from apyori import apriori, dump_as_json          # Algoritmo apriori
 
 from .forms import LoginForm
 
+#practica 3
+#_____________________________________
+from scipy.spatial.distance import cdist    # Para el cálculo de distancias
+from scipy.spatial import distance
+#_____________________________________
+
 #blueprint permimte usar url
 pagina = Blueprint('pagina',__name__)
 
@@ -91,7 +97,7 @@ def read_csv():
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
 
 
-
+@pagina.route('/read_csv2', methods=['POST'])
 def read_csv2():
     if request.method =='POST':
         flask_file = request.files['file']
@@ -104,36 +110,9 @@ def read_csv2():
         archivo = pd.read_csv(flask_file, header=None)
         print(archivo)
         
-        #Se incluyen todas las transacciones en una sola lista
-        transactions = archivo.values.reshape(-1).tolist() #-1 significa 'dimensión desconocida'
-
-        #Se crea una matriz (dataframe) usando la lista y se incluye una columna 'Frecuencia'
-        matrizeu = pd.DataFrame(transactions)
-        print(matrizeu)
-
-
-"""
-        # Se genera un gráfico de barras
-        fig = Figure()
-        fig.set_size_inches(16,20)
-        ax = fig.subplots()
-        ax.plot([2,2])
-        ax.barh(transaction_list['Item'], transaction_list['Frecuencia'], color='blue')
-        ax.set_xlabel('Frecuencia')
-        ax.set_ylabel('Item')
-        ax.set_title('Frecuencia de los Items')
-        ax.set_yticks(transaction_list['Item'])
-        ax.set_yticklabels(transaction_list['Item'])
-        ax.grid(True)
-        fig.savefig(fname="app/static/img/practica_1.png", format='png')
-
-        json_data = archivo.head(5).to_json(orient='records')
-        json_transactions = transaction_list.to_json(orient='records')
-
         return jsonify({
             "data": json_data,
             "transactions": json_transactions,
-            "graph": "static/img/practica_1.png"
         })
 
-    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})"""
+    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
