@@ -8,25 +8,29 @@ from apyori import apriori, dump_as_json          # Algoritmo apriori
 
 from .forms import LoginForm
 
-#practica 3
-#_____________________________________
-from scipy.spatial.distance import cdist    # Para el cálculo de distancias
-from scipy.spatial import distance
-#_____________________________________
+# practica 3
+# _____________________________________
+# from scipy.spatial.distance import cdist    # Para el cálculo de distancias
+# from scipy.spatial import distance
+# _____________________________________
 
-#blueprint permimte usar url
-pagina = Blueprint('pagina',__name__)
+# blueprint permimte usar url
+pagina = Blueprint('pagina', __name__)
 
 
-#Error 404
+# Error 404
 
 @pagina.app_errorhandler(404)
-def pagina_no_encontrada(error):#parametro obligatorio, todo error regresa dos parametros.
+# parametro obligatorio, todo error regresa dos parametros.
+def pagina_no_encontrada(error):
     return render_template('errores/404.html'), 404
+
 
 @pagina.route('/')
 def index():
     return render_template('index.html', title='Inicio')
+
+
 """
 @pagina.route('/login', methods=['GET','POST'])
 def login():
@@ -40,9 +44,11 @@ def login():
 
     return render_template('auth/login.html', title='Login',form=form)
 """
+
+
 @pagina.route('/read_csv', methods=['POST'])
 def read_csv():
-    if request.method =='POST':
+    if request.method == 'POST':
         flask_file = request.files['file']
 
         confianza = request.form['confianza']
@@ -51,32 +57,35 @@ def read_csv():
         print(confianza)
         print(soporte)
         print(elevacion)
-        
+
         # if not a CSV file, return error
         if not flask_file.filename.endswith('.csv'):
             return make_response(jsonify({"message": "Seleccione un archivo CSV"}), 400)
 
         movies_data = pd.read_csv(flask_file, header=None)
 
-        #Se incluyen todas las transacciones en una sola lista
-        transactions = movies_data.values.reshape(-1).tolist() #-1 significa 'dimensión desconocida'
+        # Se incluyen todas las transacciones en una sola lista
+        # -1 significa 'dimensión desconocida'
+        transactions = movies_data.values.reshape(-1).tolist()
 
-        #Se crea una matriz (dataframe) usando la lista y se incluye una columna 'Frecuencia'
+        # Se crea una matriz (dataframe) usando la lista y se incluye una columna 'Frecuencia'
         transaction_list = pd.DataFrame(transactions)
         transaction_list['Frecuencia'] = 1
 
-        #Se agrupa los elementos
-        transaction_list = transaction_list.groupby(by=[0], as_index=False).count().sort_values(by=['Frecuencia'], ascending=True) #Conteo
-        transaction_list['Porcentaje'] = (transaction_list['Frecuencia'] / transaction_list['Frecuencia'].sum()) #Porcentaje
-        transaction_list = transaction_list.rename(columns={0 : 'Item'})
-
+        # Se agrupa los elementos
+        transaction_list = transaction_list.groupby(by=[0], as_index=False).count(
+        ).sort_values(by=['Frecuencia'], ascending=True)  # Conteo
+        transaction_list['Porcentaje'] = (
+            transaction_list['Frecuencia'] / transaction_list['Frecuencia'].sum())  # Porcentaje
+        transaction_list = transaction_list.rename(columns={0: 'Item'})
 
         # Se genera un gráfico de barras
         fig = Figure()
-        fig.set_size_inches(16,20)
+        fig.set_size_inches(16, 20)
         ax = fig.subplots()
-        ax.plot([2,2])
-        ax.barh(transaction_list['Item'], transaction_list['Frecuencia'], color='blue')
+        ax.plot([2, 2])
+        ax.barh(transaction_list['Item'],
+                transaction_list['Frecuencia'], color='blue')
         ax.set_xlabel('Frecuencia')
         ax.set_ylabel('Item')
         ax.set_title('Frecuencia de los Items')
@@ -99,20 +108,19 @@ def read_csv():
 
 @pagina.route('/read_csv2', methods=['POST'])
 def read_csv2():
-    if request.method =='POST':
+    if request.method == 'POST':
         flask_file = request.files['file']
 
-        
         # if not a CSV file, return error
         if not flask_file.filename.endswith('.csv'):
             return make_response(jsonify({"message": "Seleccione un archivo CSV"}), 400)
 
         archivo = pd.read_csv(flask_file, header=None)
         print(archivo)
-        
-        return jsonify({
-            "data": json_data,
-            "transactions": json_transactions,
-        })
+
+        # return jsonify({
+        #     "data": json_data,
+        #     "transactions": json_transactions,
+        # })
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
