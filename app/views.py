@@ -103,19 +103,16 @@ def read_csv2():
 
         archivo = pd.read_csv(flask_file, header=None)
         print(archivo)
+        
         #Se incluyen todas las transacciones en una sola lista
         transactions = archivo.values.reshape(-1).tolist() #-1 significa 'dimensión desconocida'
 
         #Se crea una matriz (dataframe) usando la lista y se incluye una columna 'Frecuencia'
-        transaction_list = pd.DataFrame(transactions)
-        transaction_list['Frecuencia'] = 1
-
-        #Se agrupa los elementos
-        transaction_list = transaction_list.groupby(by=[0], as_index=False).count().sort_values(by=['Frecuencia'], ascending=True) #Conteo
-        transaction_list['Porcentaje'] = (transaction_list['Frecuencia'] / transaction_list['Frecuencia'].sum()) #Porcentaje
-        transaction_list = transaction_list.rename(columns={0 : 'Item'})
+        matrizeu = pd.DataFrame(transactions)
+        print(matrizeu)
 
 
+"""
         # Se genera un gráfico de barras
         fig = Figure()
         fig.set_size_inches(16,20)
@@ -139,4 +136,4 @@ def read_csv2():
             "graph": "static/img/practica_1.png"
         })
 
-    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
+    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})"""
