@@ -117,10 +117,14 @@ def read_csv2():
 
         archivo = pd.read_csv(flask_file, header=None)
         print(archivo)
-
-        # return jsonify({
-        #     "data": json_data,
+        
+        json_data = archivo.to_json(orient='records')
+        return jsonify({
+            "data": json_data,
         #     "transactions": json_transactions,
-        # })
+        })
+        
+        # Se crea una matriz (dataframe) usando la lista y se incluye una columna 'Frecuencia'
+        transaction_list = pd.DataFrame(archivo)
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
