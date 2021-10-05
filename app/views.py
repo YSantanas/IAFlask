@@ -89,3 +89,54 @@ def read_csv():
         })
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
+
+
+
+def read_csv2():
+    if request.method =='POST':
+        flask_file = request.files['file']
+
+        
+        # if not a CSV file, return error
+        if not flask_file.filename.endswith('.csv'):
+            return make_response(jsonify({"message": "Seleccione un archivo CSV"}), 400)
+
+        archivo = pd.read_csv(flask_file, header=None)
+        print(archivo)
+        #Se incluyen todas las transacciones en una sola lista
+        transactions = archivo.values.reshape(-1).tolist() #-1 significa 'dimensión desconocida'
+
+        #Se crea una matriz (dataframe) usando la lista y se incluye una columna 'Frecuencia'
+        transaction_list = pd.DataFrame(transactions)
+        transaction_list['Frecuencia'] = 1
+
+        #Se agrupa los elementos
+        transaction_list = transaction_list.groupby(by=[0], as_index=False).count().sort_values(by=['Frecuencia'], ascending=True) #Conteo
+        transaction_list['Porcentaje'] = (transaction_list['Frecuencia'] / transaction_list['Frecuencia'].sum()) #Porcentaje
+        transaction_list = transaction_list.rename(columns={0 : 'Item'})
+
+
+        # Se genera un gráfico de barras
+        fig = Figure()
+        fig.set_size_inches(16,20)
+        ax = fig.subplots()
+        ax.plot([2,2])
+        ax.barh(transaction_list['Item'], transaction_list['Frecuencia'], color='blue')
+        ax.set_xlabel('Frecuencia')
+        ax.set_ylabel('Item')
+        ax.set_title('Frecuencia de los Items')
+        ax.set_yticks(transaction_list['Item'])
+        ax.set_yticklabels(transaction_list['Item'])
+        ax.grid(True)
+        fig.savefig(fname="app/static/img/practica_1.png", format='png')
+
+        json_data = archivo.head(5).to_json(orient='records')
+        json_transactions = transaction_list.to_json(orient='records')
+
+        return jsonify({
+            "data": json_data,
+            "transactions": json_transactions,
+            "graph": "static/img/practica_1.png"
+        })
+
+    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
