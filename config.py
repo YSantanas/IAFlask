@@ -1,16 +1,15 @@
 
-#configuraciones para el servidor y el debug
+# configuraciones para el servidor y el debug
 
 class Config:
     pass
 
+
 class desarrolladorConfig(Config):
-    DEBUG= True
+    DEBUG = True
 
-config= {
 
+config = {
     'desarrollo': desarrolladorConfig,
     'defecto': desarrolladorConfig
-
-
 }
