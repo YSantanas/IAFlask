@@ -5,6 +5,7 @@ import pandas as pd                 # Para la manipulación y análisis de los d
 import numpy as np                  # Para crear vectores y matrices n dimensionales
 from matplotlib.figure import Figure
 from apyori import apriori, dump_as_json          # Algoritmo apriori
+from uuid import uuid4
 
 from .forms import LoginForm
 
@@ -92,7 +93,13 @@ def read_csv():
         ax.set_yticks(transaction_list['Item'])
         ax.set_yticklabels(transaction_list['Item'])
         ax.grid(True)
-        fig.savefig(fname="app/static/img/practica_1.png", format='png')
+
+        nombre_temporal_uuid = str(uuid4().hex)
+        nombre_temporal_png = 'app/static/img/' + nombre_temporal_uuid + '.png'
+
+        # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png, format='png')
 
         json_data = movies_data.head(5).to_json(orient='records')
         json_transactions = transaction_list.to_json(orient='records')
