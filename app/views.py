@@ -14,14 +14,14 @@ from .forms import LoginForm
 from scipy.spatial.distance import cdist    # Para el cálculo de distancias
 from scipy.spatial import distance
 # _____________________________________
-#practica 4 y 5
+#practica 4 y 6
 #HAY QUE CARGARLO AL PROYECTO
 import matplotlib.pyplot as plt   # Para la generación de gráficas a partir de los datos
 import seaborn as sns             # Para la visualización de datos basado en matplotlib
 # %matplotlib inline
 import scipy.cluster.hierarchy as shc
 from sklearn.cluster import AgglomerativeClustering
-#
+#--- practica 5 y 6
 from kneed import KneeLocator
 from sklearn.preprocessing import StandardScaler, MinMaxScaler  
 from sklearn.cluster import KMeans
@@ -29,6 +29,28 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.preprocessing import StandardScaler, MinMaxScaler  
 #
+
+#------------------------------------------------
+#_____     Practica 7 y 8     _________
+#------------------------------------------------
+from sklearn import linear_model
+from sklearn.metrics import mean_squared_error, max_error, r2_score
+
+#practica 8
+from sklearn import model_selection
+
+#------------------------------------------------
+#_____      Practica  9 y 10      _________
+#------------------------------------------------
+
+#Se importan las bibliotecas necesarias para generar el modelo de regresión logística
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+
+#------------------------------------------------
+#_____            _______________       _________
+#------------------------------------------------
 
 
 # blueprint permimte usar url
@@ -462,6 +484,152 @@ def read_csv4():
 
 @pagina.route('/read_csv5', methods=['POST'])
 def read_csv5():
+
+    from google.colab import files
+    files.upload()
+
+#from google.colab import drive
+#drive.mount('/content/drive')
+
+    BCancer = pd.read_csv('WDBCOriginal.csv')
+    BCancer
+
+    BCancer.info()
+
+    print(BCancer.groupby('Diagnosis').size())
+
+#### **2) Selección de características**
+
+    sns.pairplot(BCancer, hue='Diagnosis')
+    plt.show()
+
+    sns.scatterplot(x='Radius', y ='Perimeter', data=BCancer, hue='Diagnosis')
+    plt.title('Gráfico de dispersión')
+    plt.xlabel('Radius')
+    plt.ylabel('Perimeter')
+    plt.show()
+
+    sns.scatterplot(x='Concavity', y ='ConcavePoints', data=BCancer, hue='Diagnosis')
+    plt.title('Gráfico de dispersión')
+    plt.xlabel('Concavity')
+    plt.ylabel('ConcavePoints')
+    plt.show()
+
+    CorrBCancer = BCancer.corr(method='pearson')
+    CorrBCancer
+
+    print(CorrBCancer['Radius'].sort_values(ascending=False)[:10], '\n')   #Top 10 valores
+
+    plt.figure(figsize=(14,7))
+    MatrizInf = np.triu(CorrBCancer)
+    sns.heatmap(CorrBCancer, cmap='RdBu_r', annot=True, mask=MatrizInf)
+    plt.show()
+
+
+    MatrizVariables = np.array(BCancer[['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension']])
+    pd.DataFrame(MatrizVariables)
+#MatrizVariables = BCancer.iloc[:, [3, 5, 6, 7, 10, 11]].values  #iloc para seleccionar filas y columnas
+
+
+
+#### **3) Estandarización de datos**"""
+    estandarizar = StandardScaler()                                # Se instancia el objeto StandardScaler o MinMaxScaler   
+    MEstandarizada = estandarizar.fit_transform(MatrizVariables)   # Sescalan los datos
+    pd.DataFrame(MEstandarizada)
+
+#### **4) Clustering Jerárquico**
+
+#Se importan las bibliotecas de clustering jerárquico para crear el árbol
+
+    plt.figure(figsize=(10, 7))
+    plt.title("Pacientes con cáncer de mama")
+    plt.xlabel('Observaciones')
+    plt.ylabel('Distancia')
+    Arbol = shc.dendrogram(shc.linkage(MEstandarizada, method='complete', metric='euclidean'))
+#plt.axhline(y=7, color='orange', linestyle='--')
+#Probar con otras medciones de distancia (euclidean, chebyshev, cityblock)
+
+#Se crean las etiquetas de los elementos en los clusters
+    MJerarquico = AgglomerativeClustering(n_clusters=4, linkage='complete', affinity='euclidean')
+    MJerarquico.fit_predict(MEstandarizada)
+    MJerarquico.labels_
+
+    BCancer['clusterH'] = MJerarquico.labels_
+    BCancer
+
+#Cantidad de elementos en los clusters
+    BCancer.groupby(['clusterH'])['clusterH'].count()
+
+    BCancer[BCancer.clusterH == 0]
+
+    CentroidesH = BCancer.groupby(['clusterH'])['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension'].mean()
+    CentroidesH
+
+
+    plt.figure(figsize=(10, 7)) 
+    plt.scatter(MEstandarizada[:,0], MEstandarizada[:,1], c=MJerarquico.labels_)
+    plt.grid()
+    plt.show()
+
+#### **5) Clustering particional**
+
+#Definición de k clusters para K-means
+#Se utiliza random_state para inicializar el generador interno de números aleatorios
+    SSE = []
+    for i in range(2, 12):
+        km = KMeans(n_clusters=i, random_state=0)
+        km.fit(MEstandarizada)
+        SSE.append(km.inertia_)
+
+#Se grafica SSE en función de k
+    plt.figure(figsize=(10, 7))
+    plt.plot(range(2, 12), SSE, marker='o')
+    plt.xlabel('Cantidad de clusters *k*')
+    plt.ylabel('SSE')
+    plt.title('Elbow Method')
+    plt.show()
+
+# !pip install kneed
+
+    kl = KneeLocator(range(2, 12), SSE, curve="convex", direction="decreasing")
+    kl.elbow
+
+    plt.style.use('ggplot')
+    kl.plot_knee()
+
+#Se crean las etiquetas de los elementos en los clusters
+    MParticional = KMeans(n_clusters=5, random_state=0).fit(MEstandarizada)
+    MParticional.predict(MEstandarizada)
+    MParticional.labels_
+
+    BCancer['clusterP'] = MParticional.labels_
+    BCancer
+
+    BCancer.groupby(['clusterP'])['clusterP'].count()
+
+    BCancer[BCancer.clusterP == 0]
+
+    CentroidesP = BCancer.groupby(['clusterP'])['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension'].mean()
+    CentroidesP
+
+# Gráfica de los elementos y los centros de los clusters
+
+    plt.rcParams['figure.figsize'] = (10, 7)
+    plt.style.use('ggplot')
+    colores=['red', 'blue', 'green', 'yellow', 'cyan']
+    asignar=[]
+    for row in MParticional.labels_:
+        asignar.append(colores[row])
+
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    ax.scatter(MEstandarizada[:, 0], 
+            MEstandarizada[:, 1], 
+            MEstandarizada[:, 2], marker='o', c=asignar, s=60)
+    ax.scatter(MParticional.cluster_centers_[:, 0], 
+            MParticional.cluster_centers_[:, 1], 
+            MParticional.cluster_centers_[:, 2], marker='o', c=colores, s=1000)
+    plt.show()
 #_________________________________________
 #_____________Practica 7__________________
 #_________________________________________
@@ -470,12 +638,174 @@ def read_csv5():
 @pagina.route('/read_csv6', methods=['POST'])
 def read_csv6():
 
+#### **1) Importar las bibliotecas necesarias y los datos**
+
+    from google.colab import files
+    files.upload()
+
+    RGeofisicos = pd.read_csv('RGeofisicos.csv')
+    RGeofisicos
+
+"""#### **2) Gráfica de las mediciones de aceite**"""
+
+    plt.figure(figsize=(20, 5))
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC1'], color='green', marker='o', label='RC1')
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC2'], color='purple', marker='o', label='RC2')
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC3'], color='blue', marker='o', label='RC3')
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC4'], color='yellow', marker='o', label='RC4')
+    plt.xlabel('Profundidad / Pies')
+    plt.ylabel('Porcentaje / %')
+    plt.title('Registros geofísicos convencionales')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+#### **3) Aplicación del algoritmo**
+
+
+
+"""Se seleccionan las variables predictoras (X) y la variable a pronosticar (Y)"""
+
+X_train = np.array(RGeofisicos[['Profundidad', 'RC1', 'RC2','RC3']])
+pd.DataFrame(X_train)
+
+Y_train = np.array(RGeofisicos[['RC4']])
+pd.DataFrame(Y_train)
+
+"""Se entrena el modelo a través de una Regresión Lineal Múltiple"""
+
+RLMultiple = linear_model.LinearRegression()
+RLMultiple.fit(X_train, Y_train)                 #Se entrena el modelo
+
+
+#Se genera el pronóstico
+Y_pronostico = RLMultiple.predict(X_train)
+pd.DataFrame(Y_pronostico)
+
+RGeofisicos['Pronostico'] = Y_pronostico
+RGeofisicos
+
+#### **4) Obtención de los coeficientes, intercepto, error y Score**
+
+
+
+    print('Coeficientes: \n', RLMultiple.coef_)
+    print('Intercepto: \n', RLMultiple.intercept_)
+    print("Residuo: %.4f" % max_error(Y_train, Y_pronostico))
+    print("MSE: %.4f" % mean_squared_error(Y_train, Y_pronostico))
+    print("RMSE: %.4f" % mean_squared_error(Y_train, Y_pronostico, squared=False))  #True devuelve MSE, False devuelve RMSE
+    print('Score (Bondad de ajuste): %.4f' % r2_score(Y_train, Y_pronostico))
+
+#### **5) Conformación del modelo de pronóstico**
+
+
+#### **6) Proyección de los valores reales y pronosticados**
+
+
+    plt.figure(figsize=(20, 5))
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC1'], color='green', marker='o', label='RC1')
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC2'], color='purple', marker='o', label='RC2')
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC3'], color='blue', marker='o', label='RC3')
+    plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC4'], color='yellow', marker='o', label='RC4')
+    plt.plot(RGeofisicos['Profundidad'], Y_pronostico, color='red', marker='o', label='Pronóstico')
+    plt.xlabel('Profundidad / Pies')
+    plt.ylabel('Porcentaje / %')
+    plt.title('Registros geofísicos convencionales')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+    plt.figure(figsize=(20, 5))
+    plt.plot(RGeofisicos['Profundidad'], Y_pronostico, color='red', marker='o', label='Pronóstico')
+    plt.xlabel('Profundidad / Pies')
+    plt.ylabel('Porcentaje / %')
+    plt.title('Registros geofísicos convencionales')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+#### **7) Nuevos pronósticos**
+
+    ROS = pd.DataFrame({'Profundidad': [5680.5], 'RC1': [0.45], 'RC2': [0.64], 'RC3': [0.5]})
+    RLMultiple.predict(ROS)
+
 #_________________________________________
 #_____________Practica 8__________________
 #_________________________________________
 
 @pagina.route('/read_csv7', methods=['POST'])
 def read_csv7():
+    from google.colab import files
+    files.upload()
+
+    BCancer = pd.read_csv('WDBCOriginal.csv')
+    BCancer
+
+#### **2) Gráfica del área del tumor por paciente**
+    plt.figure(figsize=(20, 5))
+    plt.plot(BCancer['IDNumber'], BCancer['Area'], color='green', marker='o', label='Area')
+    plt.xlabel('Paciente')
+    plt.ylabel('Tamaño del tumor')
+    plt.title('Pacientes con tumores cancerígenos')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+"""#### **3) Selección de características**"""
+    plt.figure(figsize=(14,7))
+    MatrizInf = np.triu(BCancer.corr())
+    sns.heatmap(BCancer.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
+    plt.show()
+
+
+#### **4) Aplicación del algoritmo**
+    X = np.array(BCancer[['Texture',
+                        'Perimeter',
+                        'Smoothness',	
+                        'Compactness',	
+                        'Symmetry',	
+                        'FractalDimension']])
+    pd.DataFrame(X)
+
+#['Radius', 'Texture', 'Perimeter', 'Smoothness', 'Compactness',	'Concavity', 'ConcavePoints', 'Symmetry',	'FractalDimension']
+
+    Y = np.array(BCancer[['Area']])
+    pd.DataFrame(Y)
+
+
+
+    X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y, 
+                                                                        test_size = 0.2, 
+                                                                        random_state = 1234, 
+                                                                        shuffle = True)
+
+    pd.DataFrame(X_train)
+#pd.DataFrame(X_test)
+    pd.DataFrame(Y_train)
+#pd.DataFrame(Y_test)
+    RLMultiple = linear_model.LinearRegression()
+    RLMultiple.fit(X_train, Y_train)                 #Se entrena el modelo
+
+
+#Se genera el pronóstico
+    Y_Pronostico = RLMultiple.predict(X_test)
+    pd.DataFrame(Y_Pronostico)
+
+    r2_score(Y_test, Y_Pronostico)
+
+#### **5) Obtención de los coeficientes, intercepto, error y Score**"""
+
+    print('Coeficientes: \n', RLMultiple.coef_)
+    print('Intercepto: \n', RLMultiple.intercept_)  
+    print("Residuo: %.4f" % max_error(Y_test, Y_Pronostico))
+    print("MSE: %.4f" % mean_squared_error(Y_test, Y_Pronostico))
+    print("RMSE: %.4f" % mean_squared_error(Y_test, Y_Pronostico, squared=False))   #True devuelve MSE, False devuelve RMSE
+    print('Score (Bondad de ajuste): %.4f' % r2_score(Y_test, Y_Pronostico))
+
+
+    AreaTumor = pd.DataFrame({'Texture': [18.32], 'Perimeter': [66.82], 'Smoothness': [0.08142], 'Compactness': [0.04462], 'Symmetry': [0.2372], 'FractalDimension': [0.05768]})
+    RLMultiple.predict(AreaTumor)
+
 
 #_________________________________________
 #_____________Practica 9__________________
@@ -484,9 +814,245 @@ def read_csv7():
 @pagina.route('/read_csv8', methods=['POST'])
 def read_csv8():
 
+    from google.colab import files
+    files.upload()
+
+    BCancer = pd.read_csv('WDBCOriginal.csv')
+    BCancer
+
+    print(BCancer.groupby('Diagnosis').size())
+
+#### **2) Selección de características**
+
+    sns.pairplot(BCancer, hue='Diagnosis')
+    plt.show()
+
+#plt.plot(BCancer['Radius'], BCancer['Perimeter'], 'b+')
+    sns.scatterplot(x='Radius', y ='Perimeter', data=BCancer, hue='Diagnosis')
+    plt.title('Gráfico de dispersión')
+    plt.xlabel('Radius')
+    plt.ylabel('Perimeter')
+    plt.show()
+
+    CorrBCancer = BCancer.corr(method='pearson')
+    CorrBCancer
+
+    plt.figure(figsize=(14,7))
+    MatrizInf = np.triu(BCancer.corr())
+    sns.heatmap(BCancer.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
+    plt.show()
+
+
+    BCancer = BCancer.replace({'M': 0, 'B': 1})
+    BCancer
+
+    print(BCancer.groupby('Diagnosis').size())
+
+#Variables predictoras
+    X = np.array(BCancer[['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension']])
+#X = BCancer.iloc[:, [3, 5, 6, 7, 10, 11]].values  #iloc para seleccionar filas y columnas según su posición
+    pd.DataFrame(X)
+
+#Variable clase
+    Y = np.array(BCancer[['Diagnosis']])
+    pd.DataFrame(Y)
+
+    plt.figure(figsize=(10, 7))
+    plt.scatter(X[:,0], X[:,1], c = BCancer.Diagnosis)
+    plt.grid()
+    plt.xlabel('Texture')
+    plt.ylabel('Area')
+    plt.show()
+
+#### **4) Aplicación del algoritmo**
+
+    X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, 
+                                                                                    test_size = 0.2, 
+                                                                                    random_state = 1234,
+                                                                                    shuffle = True)
+
+    pd.DataFrame(X_train)
+
+    pd.DataFrame(Y_train)
+
+#Se entrena el modelo a partir de los datos de entrada
+    Clasificacion = linear_model.LogisticRegression()
+    Clasificacion.fit(X_train, Y_train)
+
+"""Se generan las probabilidades"""
+
+#Predicciones probabilísticas de los datos de prueba
+    Probabilidad = Clasificacion.predict_proba(X_validation)
+    pd.DataFrame(Probabilidad)
+
+#Predicciones con clasificación final 
+    Predicciones = Clasificacion.predict(X_validation)
+    pd.DataFrame(Predicciones)
+
+#Se calcula el exactitud promedio de la validación
+    Clasificacion.score(X_validation, Y_validation)
+
+#### **5) Validación del modelo**
+
+#Matriz de clasificación
+    Y_Clasificacion = Clasificacion.predict(X_validation)
+    Matriz_Clasificacion = pd.crosstab(Y_validation.ravel(), 
+                                    Y_Clasificacion, 
+                                    rownames=['Real'], 
+                                    colnames=['Clasificación']) 
+    Matriz_Clasificacion
+
+#Reporte de la clasificación
+    print("Exactitud", Clasificacion.score(X_validation, Y_validation))
+    print(classification_report(Y_validation, Y_Clasificacion))
+
+#### **6) Ecuación del modelo de clasificación**"""
+
+#Ecuación del modelo
+    print("Intercept:", Clasificacion.intercept_)
+    print('Coeficientes: \n', Clasificacion.coef_)
+
+
+
+#Paciente P-842302 (1) -Tumor Maligno-
+    PacienteID1 = pd.DataFrame({'Texture': [10.38], 
+                                'Area': [1001.0], 
+                                'Smoothness': [0.11840], 
+                                'Compactness': [0.27760], 
+                                'Symmetry': [0.2419], 
+                                'FractalDimension': [0.07871]})
+    Clasificacion.predict(PacienteID1)
+
+#Paciente P-92751 (569) -Tumor Benigno-
+    PacienteID2 = pd.DataFrame({'Texture': [24.54], 
+                                'Area': [181.0], 
+                                'Smoothness': [0.05263], 
+                                'Compactness': [0.04362], 
+                                'Symmetry': [0.1587], 
+                                'FractalDimension': [0.05884]})
+    Clasificacion.predict(PacienteID2)
+
 #_________________________________________
 #_____________Practica 10__________________
 #_________________________________________
 
 @pagina.route('/read_csv9', methods=['POST'])
 def read_csv9():
+    from google.colab import files
+    files.upload()
+
+    Hipoteca = pd.read_csv('Hipoteca.csv')
+    Hipoteca
+
+    print(Hipoteca.groupby('comprar').size())
+
+#### **2) Selección de características**
+
+    sns.pairplot(Hipoteca, hue='comprar')
+    plt.show()
+
+    sns.scatterplot(x='ahorros', y ='ingresos', data=Hipoteca, hue='comprar')
+    plt.title('Gráfico de dispersión')
+    plt.xlabel('Ahorros')
+    plt.ylabel('Ingresos')
+    plt.show()
+
+    CorrHipoteca = Hipoteca.corr(method='pearson')
+    CorrHipoteca
+
+    plt.figure(figsize=(14,7))
+    MatrizInf = np.triu(Hipoteca.corr())
+    sns.heatmap(Hipoteca.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
+    plt.show()
+
+#Variables predictoras
+    X = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche', 'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
+    pd.DataFrame(X)
+
+#Variable clase
+    Y = np.array(Hipoteca[['comprar']])
+    pd.DataFrame(Y)
+
+    plt.figure(figsize=(10, 7))
+    plt.scatter(X[:,0], X[:,5], c = Hipoteca.comprar)
+    plt.grid()
+    plt.xlabel('ingresos')
+    plt.ylabel('vivienda')
+    plt.show()
+
+#### **4) Aplicación del algoritmo**
+
+    X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, 
+                                                                                    test_size = 0.2, 
+                                                                                    random_state = 1234,
+                                                                                    shuffle = True)
+
+    pd.DataFrame(X_train)
+
+    pd.DataFrame(Y_train)
+
+#Se entrena el modelo a partir de los datos de entrada
+    Clasificacion = linear_model.LogisticRegression()
+    Clasificacion.fit(X_train, Y_train)
+
+"""Se generan las probabilidades"""
+
+#Predicciones probabilísticas
+    Probabilidad = Clasificacion.predict_proba(X_validation)
+    pd.DataFrame(Probabilidad)
+
+#Predicciones con clasificación final 
+    Predicciones = Clasificacion.predict(X_validation)
+    pd.DataFrame(Predicciones)
+
+#A manera de referencia se calcula la exactitud promedio
+    Clasificacion.score(X_validation, Y_validation)
+
+#### **5) Validación del modelo**
+
+
+#Matriz de clasificación
+    Y_Clasificacion = Clasificacion.predict(X_validation)
+    Matriz_Clasificacion = pd.crosstab(Y_validation.ravel(), 
+                                    Y_Clasificacion, 
+                                    rownames=['Reales'], 
+                                    colnames=['Clasificación']) 
+    Matriz_Clasificacion
+
+#Reporte de la clasificación
+    print("Exactitud", Clasificacion.score(X_validation, Y_validation))
+    print(classification_report(Y_validation, Y_Clasificacion))
+
+#### **6) Ecuación del modelo de clasificación**
+
+#Ecuación del modelo
+    print("Intercept:", Clasificacion.intercept_)
+    print('Coeficientes: \n', Clasificacion.coef_)
+
+
+
+# 0=alquilar y 1=crédito
+    HipotecaID250 = pd.DataFrame({'ingresos': [6000], 
+                                'gastos_comunes': [1000], 
+                                'pago_coche': [0], 
+                                'gastos_otros': [600], 
+                                'ahorros': [50000], 
+                                'vivienda': [400000],
+                                'estado_civil': [0],
+                                'hijos': [2],
+                                'trabajo': [2]
+                                })
+    Clasificacion.predict(HipotecaID250)
+
+# 0=alquilar y 1=crédito
+    HipotecaID251 = pd.DataFrame({'ingresos': [6745], 
+                                'gastos_comunes': [944], 
+                                'pago_coche': [123], 
+                                'gastos_otros': [429], 
+                                'ahorros': [43240], 
+                                'vivienda': [636897],
+                                'estado_civil': [1],
+                                'hijos': [3],
+                                'trabajo': [6]
+                              })
+    Clasificacion.predict(HipotecaID251)
