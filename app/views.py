@@ -14,6 +14,22 @@ from .forms import LoginForm
 from scipy.spatial.distance import cdist    # Para el cálculo de distancias
 from scipy.spatial import distance
 # _____________________________________
+#practica 4 y 5
+#HAY QUE CARGARLO AL PROYECTO
+import matplotlib.pyplot as plt   # Para la generación de gráficas a partir de los datos
+import seaborn as sns             # Para la visualización de datos basado en matplotlib
+# %matplotlib inline
+import scipy.cluster.hierarchy as shc
+from sklearn.cluster import AgglomerativeClustering
+#
+from kneed import KneeLocator
+from sklearn.preprocessing import StandardScaler, MinMaxScaler  
+from sklearn.cluster import KMeans
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.metrics import pairwise_distances_argmin_min
+from sklearn.preprocessing import StandardScaler, MinMaxScaler  
+#
+
 
 # blueprint permimte usar url
 pagina = Blueprint('pagina', __name__)
@@ -225,3 +241,252 @@ def read_csv2():
         })
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
+
+
+#_________________________________________
+#_____________Practica 4__________________
+#_________________________________________
+@pagina.route('/read_csv3', methods=['POST'])
+def read_csv3():
+
+    from google.colab import files
+    files.upload() 
+
+#from google.colab import drive
+#drive.mount('/content/drive')
+
+    Hipoteca = pd.read_csv("Hipoteca.csv")
+    Hipoteca
+
+    Hipoteca.info()
+
+    print(Hipoteca.groupby('comprar').size())
+
+#### **2) Selección de características**
+
+
+    sns.pairplot(Hipoteca, hue='comprar')
+    plt.show()
+
+    sns.scatterplot(x='ahorros', y ='ingresos', data=Hipoteca, hue='comprar')
+    plt.title('Gráfico de dispersión')
+    plt.xlabel('Ahorros')
+    plt.ylabel('Ingresos')
+    plt.show()
+
+
+
+    CorrHipoteca = Hipoteca.corr(method='pearson')
+    CorrHipoteca
+
+    print(CorrHipoteca['ingresos'].sort_values(ascending=False)[:10], '\n')   #Top 10 valores
+
+    plt.figure(figsize=(14,7))
+    MatrizInf = np.triu(CorrHipoteca)
+    sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
+    plt.show()
+
+
+    MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche', 'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
+    pd.DataFrame(MatrizHipoteca)
+#MatrizHipoteca = Hipoteca.iloc[:, 0:9].values     #iloc para seleccionar filas y columnas según su posición
+
+#### **3) Aplicación del algoritmo**
+
+
+
+    from sklearn.preprocessing import StandardScaler, MinMaxScaler  
+    estandarizar = StandardScaler()                               # Se instancia el objeto StandardScaler o MinMaxScaler 
+    MEstandarizada = estandarizar.fit_transform(MatrizHipoteca)   # Se calculan la media y desviación y se escalan los datos
+
+    pd.DataFrame(MEstandarizada)
+
+#Se importan las bibliotecas de clustering jerárquico para crear el árbol
+
+    plt.figure(figsize=(10, 7))
+    plt.title("Casos de hipoteca")
+    plt.xlabel('Hipoteca')
+    plt.ylabel('Distancia')
+    Arbol = shc.dendrogram(shc.linkage(MEstandarizada, method='complete', metric='euclidean'))
+#plt.axhline(y=5.4, color='orange', linestyle='--')
+#Probar con otras medciones de distancia (euclidean, chebyshev, cityblock)
+
+#Se crean las etiquetas de los elementos en los clústeres
+    MJerarquico = AgglomerativeClustering(n_clusters=7, linkage='complete', affinity='euclidean')
+    MJerarquico.fit_predict(MEstandarizada)
+    MJerarquico.labels_
+
+    Hipoteca = Hipoteca.drop(columns=['comprar'])
+    Hipoteca['clusterH'] = MJerarquico.labels_
+    Hipoteca
+
+#Cantidad de elementos en los clusters
+    Hipoteca.groupby(['clusterH'])['clusterH'].count()
+
+    Hipoteca[Hipoteca.clusterH == 6]
+
+    CentroidesH = Hipoteca.groupby('clusterH').mean()
+    CentroidesH
+
+    plt.figure(figsize=(10, 7))
+    plt.scatter(MEstandarizada[:,0], MEstandarizada[:,1], c=MJerarquico.labels_)
+    plt.grid()
+    plt.show()  
+#_________________________________________
+#_____________Practica 5__________________
+#_________________________________________
+
+@pagina.route('/read_csv4', methods=['POST'])
+def read_csv4():
+
+    from google.colab import files
+    files.upload() 
+
+#from google.colab import drive
+#drive.mount('/content/drive')
+
+    Hipoteca = pd.read_csv("Hipoteca.csv")
+    Hipoteca
+
+    Hipoteca.info()
+
+    print(Hipoteca.groupby('comprar').size())
+
+#### **2) Selección de características**
+
+    sns.pairplot(Hipoteca, hue='comprar')
+    plt.show()
+
+    sns.scatterplot(x='ahorros', y ='ingresos', data=Hipoteca, hue='comprar')
+    plt.title('Gráfico de dispersión')
+    plt.xlabel('Ahorros')
+    plt.ylabel('Ingresos')
+    plt.show()
+
+
+    CorrHipoteca = Hipoteca.corr(method='pearson')
+    CorrHipoteca
+
+    print(CorrHipoteca['ingresos'].sort_values(ascending=False)[:10], '\n')   #Top 10 valores
+
+    plt.figure(figsize=(14,7))
+    MatrizInf = np.triu(CorrHipoteca)
+    sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
+    plt.show()
+
+
+    MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche', 'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
+    pd.DataFrame(MatrizHipoteca) 
+#MatrizHipoteca = Hipoteca.iloc[:, 0:9].values     #iloc para seleccionar filas y columnas según su posición
+
+#### **3) Aplicación del algoritmo**
+
+
+
+    estandarizar = StandardScaler()                               # Se instancia el objeto StandardScaler o MinMaxScaler 
+    MEstandarizada = estandarizar.fit_transform(MatrizHipoteca)   # Se calculan la media y desviación y se escalan los datos
+
+    pd.DataFrame(MEstandarizada)
+
+
+
+#Definición de k clusters para K-means
+#Se utiliza random_state para inicializar el generador interno de números aleatorios
+    SSE = []
+    for i in range(2, 12):
+        km = KMeans(n_clusters=i, random_state=0)
+        km.fit(MEstandarizada)
+        SSE.append(km.inertia_)
+
+#Se grafica SSE en función de k
+    plt.figure(figsize=(10, 7))
+    plt.plot(range(2, 12), SSE, marker='o')
+    plt.xlabel('Cantidad de clusters *k*')
+    plt.ylabel('SSE')
+    plt.title('Elbow Method')
+    plt.show()
+
+
+
+# !pip install kneed
+
+
+    kl = KneeLocator(range(2, 12), SSE, curve="convex", direction="decreasing")
+    kl.elbow
+
+    plt.style.use('ggplot')
+    kl.plot_knee()
+
+#Se crean las etiquetas de los elementos en los clusters
+    MParticional = KMeans(n_clusters=4, random_state=0).fit(MEstandarizada)
+    MParticional.predict(MEstandarizada)
+    MParticional.labels_
+
+    Hipoteca = Hipoteca.drop(columns=['comprar'])
+    Hipoteca['clusterP'] = MParticional.labels_
+    Hipoteca
+
+#Cantidad de elementos en los clusters
+    Hipoteca.groupby(['clusterP'])['clusterP'].count()
+
+    Hipoteca[Hipoteca.clusterP == 0]
+
+"""Obtención de los centroides"""
+
+    CentroidesP = Hipoteca.groupby('clusterP').mean()
+    CentroidesP
+
+
+
+# Gráfica de los elementos y los centros de los clusters
+
+    plt.rcParams['figure.figsize'] = (10, 7)
+    plt.style.use('ggplot')
+    colores=['red', 'blue', 'green', 'yellow']
+    asignar=[]
+    for row in MParticional.labels_:
+        asignar.append(colores[row])
+
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    ax.scatter(MEstandarizada[:, 0], 
+            MEstandarizada[:, 1], 
+            MEstandarizada[:, 2], marker='o', c=asignar, s=60)
+    ax.scatter(MParticional.cluster_centers_[:, 0], 
+            MParticional.cluster_centers_[:, 1], 
+            MParticional.cluster_centers_[:, 2], marker='o', c=colores, s=1000)
+    plt.show()
+#_________________________________________
+#_____________Practica 6__________________
+#_________________________________________
+
+@pagina.route('/read_csv5', methods=['POST'])
+def read_csv5():
+#_________________________________________
+#_____________Practica 7__________________
+#_________________________________________
+
+
+@pagina.route('/read_csv6', methods=['POST'])
+def read_csv6():
+
+#_________________________________________
+#_____________Practica 8__________________
+#_________________________________________
+
+@pagina.route('/read_csv7', methods=['POST'])
+def read_csv7():
+
+#_________________________________________
+#_____________Practica 9__________________
+#_________________________________________
+
+@pagina.route('/read_csv8', methods=['POST'])
+def read_csv8():
+
+#_________________________________________
+#_____________Practica 10__________________
+#_________________________________________
+
+@pagina.route('/read_csv9', methods=['POST'])
+def read_csv9():
