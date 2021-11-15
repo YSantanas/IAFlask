@@ -357,6 +357,9 @@ def read_csv3():
 #_________________________________________
 #_____________Practica 5__________________
 #_________________________________________
+#COMENTARIO PARA CENTRARSE EN UNA PRACTICA
+
+"""
 
 @pagina.route('/read_csv4', methods=['POST'])
 def read_csv4():
@@ -453,8 +456,7 @@ def read_csv4():
 
     Hipoteca[Hipoteca.clusterP == 0]
 
-"""Obtención de los centroides"""
-
+#Obtención de los centroides
     CentroidesP = Hipoteca.groupby('clusterP').mean()
     CentroidesP
 
@@ -532,7 +534,7 @@ def read_csv5():
 
 
 
-#### **3) Estandarización de datos**"""
+#### **3) Estandarización de datos**
     estandarizar = StandardScaler()                                # Se instancia el objeto StandardScaler o MinMaxScaler   
     MEstandarizada = estandarizar.fit_transform(MatrizVariables)   # Sescalan los datos
     pd.DataFrame(MEstandarizada)
@@ -646,7 +648,7 @@ def read_csv6():
     RGeofisicos = pd.read_csv('RGeofisicos.csv')
     RGeofisicos
 
-"""#### **2) Gráfica de las mediciones de aceite**"""
+#### **2) Gráfica de las mediciones de aceite**
 
     plt.figure(figsize=(20, 5))
     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC1'], color='green', marker='o', label='RC1')
@@ -664,7 +666,7 @@ def read_csv6():
 
 
 
-"""Se seleccionan las variables predictoras (X) y la variable a pronosticar (Y)"""
+#Se seleccionan las variables predictoras (X) y la variable a pronosticar (Y)
 
 X_train = np.array(RGeofisicos[['Profundidad', 'RC1', 'RC2','RC3']])
 pd.DataFrame(X_train)
@@ -672,7 +674,7 @@ pd.DataFrame(X_train)
 Y_train = np.array(RGeofisicos[['RC4']])
 pd.DataFrame(Y_train)
 
-"""Se entrena el modelo a través de una Regresión Lineal Múltiple"""
+#Se entrena el modelo a través de una Regresión Lineal Múltiple
 
 RLMultiple = linear_model.LinearRegression()
 RLMultiple.fit(X_train, Y_train)                 #Se entrena el modelo
@@ -751,7 +753,7 @@ def read_csv7():
     plt.legend()
     plt.show()
 
-"""#### **3) Selección de características**"""
+#### **3) Selección de características**
     plt.figure(figsize=(14,7))
     MatrizInf = np.triu(BCancer.corr())
     sns.heatmap(BCancer.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
@@ -793,7 +795,7 @@ def read_csv7():
 
     r2_score(Y_test, Y_Pronostico)
 
-#### **5) Obtención de los coeficientes, intercepto, error y Score**"""
+#### **5) Obtención de los coeficientes, intercepto, error y Score**
 
     print('Coeficientes: \n', RLMultiple.coef_)
     print('Intercepto: \n', RLMultiple.intercept_)  
@@ -879,7 +881,7 @@ def read_csv8():
     Clasificacion = linear_model.LogisticRegression()
     Clasificacion.fit(X_train, Y_train)
 
-"""Se generan las probabilidades"""
+#Se generan las probabilidades
 
 #Predicciones probabilísticas de los datos de prueba
     Probabilidad = Clasificacion.predict_proba(X_validation)
@@ -906,7 +908,7 @@ def read_csv8():
     print("Exactitud", Clasificacion.score(X_validation, Y_validation))
     print(classification_report(Y_validation, Y_Clasificacion))
 
-#### **6) Ecuación del modelo de clasificación**"""
+#### **6) Ecuación del modelo de clasificación**
 
 #Ecuación del modelo
     print("Intercept:", Clasificacion.intercept_)
@@ -995,7 +997,7 @@ def read_csv9():
     Clasificacion = linear_model.LogisticRegression()
     Clasificacion.fit(X_train, Y_train)
 
-"""Se generan las probabilidades"""
+#Se generan las probabilidades
 
 #Predicciones probabilísticas
     Probabilidad = Clasificacion.predict_proba(X_validation)
@@ -1056,3 +1058,7 @@ def read_csv9():
                                 'trabajo': [6]
                               })
     Clasificacion.predict(HipotecaID251)
+    
+    
+    """
+    #CIERRE DE COMENTARIO PARA LA PRACTICA 4
