@@ -407,22 +407,28 @@ print(plt.show())
 
 # """
 
-# @pagina.route('/read_csv4', methods=['POST'])
-# def read_csv4():
+@pagina.route('/read_csv4', methods=['POST'])
+def read_csv4():
 
-#     from google.colab import files
-#     files.upload()
+    if request.method == 'POST':
 
-# #from google.colab import drive
-# #drive.mount('/content/drive')
+        flask_file = request.files['file']
 
-#     Hipoteca = pd.read_csv("Hipoteca.csv")
-#     Hipoteca
+        if not flask_file.filename.endswith('.csv'):
+            return make_response(jsonify({'message': 'Seleccione un archivo CSV'}), 400)
 
-#     Hipoteca.info()
+        Hipoteca = pd.read_csv(flask_file)
 
-#     print(Hipoteca.groupby('comprar').size())
+        print(Hipoteca)
 
+        print(Hipoteca.groupby('comprar').size())
+
+        data_table_3 = pd.DataFrame(Hipoteca)
+        json_data3 = data_table_3.head(5).to_json(orient='records')
+        
+        return jsonify({'status': 'success', 'data': json_data3})
+
+    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
 # #### **2) Selección de características**
 
 #     sns.pairplot(Hipoteca, hue='comprar')
