@@ -90,7 +90,7 @@ def login():
 """
 
 
-@pagina.route('/read_csv', methods=['POST'])
+@pagina.route('/algoritmoApriori', methods=['POST'])
 def read_csv():
     if request.method == 'POST':
 
@@ -156,7 +156,7 @@ def read_csv():
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
 
 
-@pagina.route('/read_csv2', methods=['POST'])
+@pagina.route('/medidasDistancias', methods=['POST'])
 def read_csv2():
     if request.method == 'POST':
         input_a = int(request.form['input_a'])
@@ -272,7 +272,7 @@ def read_csv2():
 # _________________________________________
 # _____________Practica 4__________________
 # _________________________________________
-@pagina.route('/read_csv3', methods=['POST'])
+@pagina.route('/clusterJerarquico', methods=['POST'])
 def read_csv3():
 
     if request.method == 'POST':
@@ -296,12 +296,13 @@ def read_csv3():
 
 #NO SIRVE PARA QUITAR LOS ENCABEZADOS Y PONER INDICES
 
-        Hipoteca2 = pd.read_csv(flask_file,header=None)
+
+        # Hipoteca2 = pd.read_csv(flask_file,header=None)
 
 
-        MatrizHipoteca = np.array(Hipoteca2[['ingresos', 'gastos comunes', 'pago coche', 'gastos otros', 'ahorros', 'vivienda', 'estado civil', 'hijos', 'trabajo']])
-        data_table_2 = pd.DataFrame(MatrizHipoteca)
-        json_data_2 = data_table_2.to_json()
+        # MatrizHipoteca = np.array(Hipoteca2[['ingresos', 'gastos comunes', 'pago coche', 'gastos otros', 'ahorros', 'vivienda', 'estado civil', 'hijos', 'trabajo']])
+        # data_table_2 = pd.DataFrame(MatrizHipoteca)
+        # json_data_2 = data_table_2.to_json()
 
 
 #__________________________________________
@@ -427,7 +428,7 @@ def read_csv3():
 
 # """
 
-@pagina.route('/read_csv4', methods=['POST'])
+@pagina.route('/clusterParticional', methods=['POST'])
 def read_csv4():
 
     if request.method == 'POST':
@@ -444,11 +445,11 @@ def read_csv4():
         print(Hipoteca.groupby('comprar').size())
 
         data_table_3 = pd.DataFrame(Hipoteca)
-        json_data3 = data_table_3.head(5).to_json(orient='records')
+        json_data3 = data_table_3.head(10).to_json(orient='records')
         
         
         
-                # Se genera un gráfico de dispersión
+        # Se genera un gráfico de dispersión
         fig = Figure()
         fig.set_size_inches(4, 4)
         ax = fig.add_subplot(111)
@@ -582,7 +583,7 @@ def read_csv4():
 # #_________________________________________
 
 
-# @pagina.route('/read_csv6', methods=['POST'])
+# @pagina.route('/regresionLineal', methods=['POST'])
 # def read_csv6():
 
 # #### **1) Importar las bibliotecas necesarias y los datos**
@@ -675,330 +676,305 @@ def read_csv4():
 #     RLMultiple.predict(ROS)
 
 # #_________________________________________
-# #_____________Practica 8__________________
+# #_____________Practica 11__________________
 # #_________________________________________
 
-# @pagina.route('/read_csv7', methods=['POST'])
-# def read_csv7():
-#     from google.colab import files
-#     files.upload()
+# @pagina.route('/pronosticoArbol, methods=['POST'])
+# def read_csv8():
 
-#     BCancer = pd.read_csv('WDBCOriginal.csv')
-#     BCancer
 
 # #### **2) Gráfica del área del tumor por paciente**
-#     plt.figure(figsize=(20, 5))
-#     plt.plot(BCancer['IDNumber'], BCancer['Area'], color='green', marker='o', label='Area')
-#     plt.xlabel('Paciente')
-#     plt.ylabel('Tamaño del tumor')
-#     plt.title('Pacientes con tumores cancerígenos')
-#     plt.grid(True)
-#     plt.legend()
-#     plt.show()
+
+
+# plt.figure(figsize=(20, 5))
+# plt.plot(BCancer['IDNumber'], BCancer['Area'], color='green', marker='o', label='Area')
+# plt.xlabel('Paciente')
+# plt.ylabel('Tamaño del tumor')
+# plt.title('Pacientes con tumores cancerígenos')
+# plt.grid(True)
+# plt.legend()
+# plt.show()
 
 # #### **3) Selección de características**
-#     plt.figure(figsize=(14,7))
-#     MatrizInf = np.triu(BCancer.corr())
-#     sns.heatmap(BCancer.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
-#     plt.show()
+
+# plt.figure(figsize=(14,7))
+# MatrizInf = np.triu(BCancer.corr())
+# sns.heatmap(BCancer.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
+# plt.show()
+
 
 
 # #### **4) Aplicación del algoritmo**
-#     X = np.array(BCancer[['Texture',
-#                         'Perimeter',
-#                         'Smoothness',
-#                         'Compactness',
-#                         'Symmetry',
-#                         'FractalDimension']])
-#     pd.DataFrame(X)
-
-# #['Radius', 'Texture', 'Perimeter', 'Smoothness', 'Compactness',	'Concavity', 'ConcavePoints', 'Symmetry',	'FractalDimension']
-
-#     Y = np.array(BCancer[['Area']])
-#     pd.DataFrame(Y)
 
 
-#     X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y,
-#                                                                         test_size = 0.2,
-#                                                                         random_state = 1234,
-#                                                                         shuffle = True)
+# from sklearn.tree import DecisionTreeRegressor
+# from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+# from sklearn import model_selection
 
-#     pd.DataFrame(X_train)
+# #Se seleccionan las variables predictoras (X) y la variable a pronosticar (Y)
+
+# X = np.array(BCancer[['Texture',
+#                       'Perimeter',
+#                       'Smoothness',	
+#                       'Compactness',	
+#                       'Symmetry',	
+#                       'FractalDimension']])
+# pd.DataFrame(X)
+
+# #X = np.array(BCancer[['Radius', 'Texture', 'Perimeter', 'Smoothness', 'Compactness',	'Concavity', 'ConcavePoints', 'Symmetry',	'FractalDimension']
+# #pd.DataFrame(X)
+
+# Y = np.array(BCancer[['Area']])
+# pd.DataFrame(Y)
+
+# #Se hace la división de los datos
+
+# X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y, 
+#                                                                     test_size = 0.2, 
+#                                                                     random_state = 1234, 
+#                                                                     shuffle = True)
+
+# pd.DataFrame(X_train)
 # #pd.DataFrame(X_test)
-#     pd.DataFrame(Y_train)
+
+# pd.DataFrame(Y_train)
 # #pd.DataFrame(Y_test)
-#     RLMultiple = linear_model.LinearRegression()
-#     RLMultiple.fit(X_train, Y_train)                 #Se entrena el modelo
+
+# #Se entrena el modelo a través de un Árbol de Decisión (Regresión)
+
+# PronosticoAD = DecisionTreeRegressor()
+# PronosticoAD.fit(X_train, Y_train)
+
+# #PronosticoAD = DecisionTreeRegressor(max_depth=8, min_samples_split=4, min_samples_leaf=2)
+# #PronosticoAD.fit(X_train, Y_train)
 
 
 # #Se genera el pronóstico
-#     Y_Pronostico = RLMultiple.predict(X_test)
-#     pd.DataFrame(Y_Pronostico)
+# Y_Pronostico = PronosticoAD.predict(X_test)
+# pd.DataFrame(Y_Pronostico)
 
-#     r2_score(Y_test, Y_Pronostico)
+# Valores = pd.DataFrame(Y_test, Y_Pronostico)
+# Valores
 
-# #### **5) Obtención de los coeficientes, intercepto, error y Score**
+# plt.figure(figsize=(20, 5))
+# plt.plot(Y_test, color='green', marker='o', label='Y_test')
+# plt.plot(Y_Pronostico, color='red', marker='o', label='Y_Pronostico')
+# plt.xlabel('Paciente')
+# plt.ylabel('Tamaño del tumor')
+# plt.title('Pacientes con tumores cancerígenos')
+# plt.grid(True)
+# plt.legend()
+# plt.show()
 
-#     print('Coeficientes: \n', RLMultiple.coef_)
-#     print('Intercepto: \n', RLMultiple.intercept_)
-#     print("Residuo: %.4f" % max_error(Y_test, Y_Pronostico))
-#     print("MSE: %.4f" % mean_squared_error(Y_test, Y_Pronostico))
-#     print("RMSE: %.4f" % mean_squared_error(Y_test, Y_Pronostico, squared=False))   #True devuelve MSE, False devuelve RMSE
-#     print('Score (Bondad de ajuste): %.4f' % r2_score(Y_test, Y_Pronostico))
+# r2_score(Y_test, Y_Pronostico)
+
+# #### **5) Obtención de los parámetros del modelo**
+
+# print('Criterio: \n', PronosticoAD.criterion)
+# print('Importancia variables: \n', PronosticoAD.feature_importances_)
+# print("MAE: %.4f" % mean_absolute_error(Y_test, Y_Pronostico))
+# print("MSE: %.4f" % mean_squared_error(Y_test, Y_Pronostico))
+# print("RMSE: %.4f" % mean_squared_error(Y_test, Y_Pronostico, squared=False))   #True devuelve MSE, False devuelve RMSE
+# print('Score: %.4f' % r2_score(Y_test, Y_Pronostico))
+
+# Importancia = pd.DataFrame({'Variable': list(BCancer[['Texture', 'Perimeter', 'Smoothness',	
+#                                             'Compactness', 'Symmetry', 'FractalDimension']]),
+#                             'Importancia': PronosticoAD.feature_importances_}).sort_values('Importancia', ascending=False)
+# Importancia
+
+# #### **6) Conformación del modelo de pronóstico**
 
 
-#     AreaTumor = pd.DataFrame({'Texture': [18.32], 'Perimeter': [66.82], 'Smoothness': [0.08142], 'Compactness': [0.04462], 'Symmetry': [0.2372], 'FractalDimension': [0.05768]})
-#     RLMultiple.predict(AreaTumor)
+# #!pip install graphviz
+
+# #import graphviz
+# #from sklearn.tree import export_graphviz
+
+# # Se crea un objeto para visualizar el árbol
+# # Se incluyen los nombres de las variables para imprimirlos en el árbol
+# Elementos = export_graphviz(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness', 
+#                                                            'Compactness', 'Symmetry', 'FractalDimension'])  
+# Arbol = graphviz.Source(Elementos)
+# Arbol
+
+# from sklearn.tree import plot_tree
+# plt.figure(figsize=(16,16))  
+# plot_tree(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness', 
+#                                          'Compactness', 'Symmetry', 'FractalDimension'])
+# plt.show()
+
+# from sklearn.tree import export_text
+# Reporte = export_text(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness', 
+#                                                      'Compactness', 'Symmetry', 'FractalDimension'])
+# print(Reporte)
+
+
+
+# #### **7) Nuevos pronósticos**
+
+
+# AreaTumorID1 = pd.DataFrame({'Texture': [10.38], 
+#                              'Perimeter': [122.8], 
+#                              'Smoothness': [0.11840], 
+#                              'Compactness': [0.27760], 
+#                              'Symmetry': [0.2419], 
+#                              'FractalDimension': [0.07871]})
+# PronosticoAD.predict(AreaTumorID1)
 
 
 # #_________________________________________
-# #_____________Practica 9__________________
+# #_____________Practica 12__________________
 # #_________________________________________
 
-# @pagina.route('/read_csv8', methods=['POST'])
+# @pagina.route('/clasificacionArbol', methods=['POST'])
 # def read_csv8():
 
-#     from google.colab import files
-#     files.upload()
+# from google.colab import files
+# files.upload()
 
-#     BCancer = pd.read_csv('WDBCOriginal.csv')
-#     BCancer
+# BCancer = pd.read_csv('WDBCOriginal.csv')
+# BCancer
 
-#     print(BCancer.groupby('Diagnosis').size())
+# print(BCancer.groupby('Diagnosis').size())
 
 # #### **2) Selección de características**
 
-#     sns.pairplot(BCancer, hue='Diagnosis')
-#     plt.show()
 
-# #plt.plot(BCancer['Radius'], BCancer['Perimeter'], 'b+')
-#     sns.scatterplot(x='Radius', y ='Perimeter', data=BCancer, hue='Diagnosis')
-#     plt.title('Gráfico de dispersión')
-#     plt.xlabel('Radius')
-#     plt.ylabel('Perimeter')
-#     plt.show()
-
-#     CorrBCancer = BCancer.corr(method='pearson')
-#     CorrBCancer
-
-#     plt.figure(figsize=(14,7))
-#     MatrizInf = np.triu(BCancer.corr())
-#     sns.heatmap(BCancer.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
-#     plt.show()
+# plt.figure(figsize=(14,7))
+# MatrizInf = np.triu(BCancer.corr())
+# sns.heatmap(BCancer.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
+# plt.show()
 
 
-#     BCancer = BCancer.replace({'M': 0, 'B': 1})
-#     BCancer
 
-#     print(BCancer.groupby('Diagnosis').size())
+# #### **3) Definición de variables predictoras y variable clase**
+
+
+# BCancer = BCancer.replace({'M': 'Malignant', 'B': 'Benign'})
+# BCancer
+
+# print(BCancer.groupby('Diagnosis').size())
 
 # #Variables predictoras
-#     X = np.array(BCancer[['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension']])
-# #X = BCancer.iloc[:, [3, 5, 6, 7, 10, 11]].values  #iloc para seleccionar filas y columnas según su posición
-#     pd.DataFrame(X)
+# X = np.array(BCancer[['Texture', 
+#                       'Area', 
+#                       'Smoothness', 
+#                       'Compactness', 
+#                       'Symmetry', 
+#                       'FractalDimension']])
+# pd.DataFrame(X)
+
+# #X = np.array(BCancer[['Radius', 'Texture', 'Perimeter', 'Area', 'Smoothness', 'Compactness',	'Concavity', 'ConcavePoints', 'Symmetry',	'FractalDimension']])
+# #pd.DataFrame(X)
 
 # #Variable clase
-#     Y = np.array(BCancer[['Diagnosis']])
-#     pd.DataFrame(Y)
+# Y = np.array(BCancer[['Diagnosis']])
+# pd.DataFrame(Y)
 
-#     plt.figure(figsize=(10, 7))
-#     plt.scatter(X[:,0], X[:,1], c = BCancer.Diagnosis)
-#     plt.grid()
-#     plt.xlabel('Texture')
-#     plt.ylabel('Area')
-#     plt.show()
+# #### **4) División de datos y aplicación del algoritmo**
 
-# #### **4) Aplicación del algoritmo**
 
-#     X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y,
-#                                                                                     test_size = 0.2,
-#                                                                                     random_state = 1234,
-#                                                                                     shuffle = True)
 
-#     pd.DataFrame(X_train)
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.metrics import classification_report
+# from sklearn.metrics import confusion_matrix
+# from sklearn.metrics import accuracy_score
+# from sklearn import model_selection
 
-#     pd.DataFrame(Y_train)
+# X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, 
+#                                                                                 test_size = 0.2, 
+#                                                                                 random_state = 0,
+#                                                                                 shuffle = True)
+
+# pd.DataFrame(X_train)
+
+# pd.DataFrame(Y_train)
 
 # #Se entrena el modelo a partir de los datos de entrada
-#     Clasificacion = linear_model.LogisticRegression()
-#     Clasificacion.fit(X_train, Y_train)
+# ClasificacionAD = DecisionTreeClassifier()
+# ClasificacionAD.fit(X_train, Y_train)
 
-# #Se generan las probabilidades
+# #ClasificacionAD = DecisionTreeClassifier(max_depth=8, min_samples_split=4, min_samples_leaf=2)
+# #ClasificacionAD.fit(X_train, Y_train)
 
-# #Predicciones probabilísticas de los datos de prueba
-#     Probabilidad = Clasificacion.predict_proba(X_validation)
-#     pd.DataFrame(Probabilidad)
 
-# #Predicciones con clasificación final
-#     Predicciones = Clasificacion.predict(X_validation)
-#     pd.DataFrame(Predicciones)
+# #Se etiquetan las clasificaciones
+# Y_Clasificacion = ClasificacionAD.predict(X_validation)
+# pd.DataFrame(Y_Clasificacion)
 
-# #Se calcula el exactitud promedio de la validación
-#     Clasificacion.score(X_validation, Y_validation)
+# Valores = pd.DataFrame(Y_validation, Y_Clasificacion)
+# Valores
+
+# #Se calcula la exactitud promedio de la validación
+# ClasificacionAD.score(X_validation, Y_validation)
 
 # #### **5) Validación del modelo**
 
+
 # #Matriz de clasificación
-#     Y_Clasificacion = Clasificacion.predict(X_validation)
-#     Matriz_Clasificacion = pd.crosstab(Y_validation.ravel(),
-#                                     Y_Clasificacion,
-#                                     rownames=['Real'],
-#                                     colnames=['Clasificación'])
-#     Matriz_Clasificacion
+# Y_Clasificacion = ClasificacionAD.predict(X_validation)
+# Matriz_Clasificacion = pd.crosstab(Y_validation.ravel(), 
+#                                    Y_Clasificacion, 
+#                                    rownames=['Real'], 
+#                                    colnames=['Clasificación']) 
+# Matriz_Clasificacion
 
 # #Reporte de la clasificación
-#     print("Exactitud", Clasificacion.score(X_validation, Y_validation))
-#     print(classification_report(Y_validation, Y_Clasificacion))
+# print('Criterio: \n', ClasificacionAD.criterion)
+# print('Importancia variables: \n', ClasificacionAD.feature_importances_)
+# print("Exactitud", ClasificacionAD.score(X_validation, Y_validation))
+# print(classification_report(Y_validation, Y_Clasificacion))
 
-# #### **6) Ecuación del modelo de clasificación**
+# Importancia = pd.DataFrame({'Variable': list(BCancer[['Texture', 'Area', 'Smoothness', 
+#                                                      'Compactness', 'Symmetry', 'FractalDimension']]),
+#                             'Importancia': ClasificacionAD.feature_importances_}).sort_values('Importancia', ascending=False)
+# Importancia
 
-# #Ecuación del modelo
-#     print("Intercept:", Clasificacion.intercept_)
-#     print('Coeficientes: \n', Clasificacion.coef_)
+# #### **6) Eficiencia y conformación del modelo de clasificación**
 
+
+# #!pip install graphviz
+# import graphviz
+# from sklearn.tree import export_graphviz
+
+# # Se crea un objeto para visualizar el árbol
+# Elementos = export_graphviz(ClasificacionAD, 
+#                             feature_names = ['Texture', 'Area', 'Smoothness', 
+#                                              'Compactness', 'Symmetry', 'FractalDimension'],
+#                             class_names = Y_Clasificacion)  
+# Arbol = graphviz.Source(Elementos)
+# Arbol
+
+# from sklearn.tree import plot_tree
+# plt.figure(figsize=(16,16))  
+# plot_tree(ClasificacionAD, 
+#           feature_names = ['Texture', 'Area', 'Smoothness', 
+#                            'Compactness', 'Symmetry', 'FractalDimension'],
+#           class_names = Y_Clasificacion)
+# plt.show()
+
+# from sklearn.tree import export_text
+# Reporte = export_text(ClasificacionAD, 
+#                       feature_names = ['Texture', 'Area', 'Smoothness', 
+#                                        'Compactness', 'Symmetry', 'FractalDimension'])
+# print(Reporte)
+
+# #### **7) Nuevas clasificaciones**
 
 # #Paciente P-842302 (1) -Tumor Maligno-
-#     PacienteID1 = pd.DataFrame({'Texture': [10.38],
-#                                 'Area': [1001.0],
-#                                 'Smoothness': [0.11840],
-#                                 'Compactness': [0.27760],
-#                                 'Symmetry': [0.2419],
-#                                 'FractalDimension': [0.07871]})
-#     Clasificacion.predict(PacienteID1)
+# PacienteID1 = pd.DataFrame({'Texture': [10.38], 
+#                             'Area': [1001.0], 
+#                             'Smoothness': [0.11840], 
+#                             'Compactness': [0.27760], 
+#                             'Symmetry': [0.2419], 
+#                             'FractalDimension': [0.07871]})
+# ClasificacionAD.predict(PacienteID1)
 
 # #Paciente P-92751 (569) -Tumor Benigno-
-#     PacienteID2 = pd.DataFrame({'Texture': [24.54],
-#                                 'Area': [181.0],
-#                                 'Smoothness': [0.05263],
-#                                 'Compactness': [0.04362],
-#                                 'Symmetry': [0.1587],
-#                                 'FractalDimension': [0.05884]})
-#     Clasificacion.predict(PacienteID2)
-
-# #_________________________________________
-# #_____________Practica 10__________________
-# #_________________________________________
-
-# @pagina.route('/read_csv9', methods=['POST'])
-# def read_csv9():
-#     from google.colab import files
-#     files.upload()
-
-#     Hipoteca = pd.read_csv('Hipoteca.csv')
-#     Hipoteca
-
-#     print(Hipoteca.groupby('comprar').size())
-
-# #### **2) Selección de características**
-
-#     sns.pairplot(Hipoteca, hue='comprar')
-#     plt.show()
-
-#     sns.scatterplot(x='ahorros', y ='ingresos', data=Hipoteca, hue='comprar')
-#     plt.title('Gráfico de dispersión')
-#     plt.xlabel('Ahorros')
-#     plt.ylabel('Ingresos')
-#     plt.show()
-
-#     CorrHipoteca = Hipoteca.corr(method='pearson')
-#     CorrHipoteca
-
-#     plt.figure(figsize=(14,7))
-#     MatrizInf = np.triu(Hipoteca.corr())
-#     sns.heatmap(Hipoteca.corr(), cmap='RdBu_r', annot=True, mask=MatrizInf)
-#     plt.show()
-
-# #Variables predictoras
-#     X = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche', 'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
-#     pd.DataFrame(X)
-
-# #Variable clase
-#     Y = np.array(Hipoteca[['comprar']])
-#     pd.DataFrame(Y)
-
-#     plt.figure(figsize=(10, 7))
-#     plt.scatter(X[:,0], X[:,5], c = Hipoteca.comprar)
-#     plt.grid()
-#     plt.xlabel('ingresos')
-#     plt.ylabel('vivienda')
-#     plt.show()
-
-# #### **4) Aplicación del algoritmo**
-
-#     X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y,
-#                                                                                     test_size = 0.2,
-#                                                                                     random_state = 1234,
-#                                                                                     shuffle = True)
-
-#     pd.DataFrame(X_train)
-
-#     pd.DataFrame(Y_train)
-
-# #Se entrena el modelo a partir de los datos de entrada
-#     Clasificacion = linear_model.LogisticRegression()
-#     Clasificacion.fit(X_train, Y_train)
-
-# #Se generan las probabilidades
-
-# #Predicciones probabilísticas
-#     Probabilidad = Clasificacion.predict_proba(X_validation)
-#     pd.DataFrame(Probabilidad)
-
-# #Predicciones con clasificación final
-#     Predicciones = Clasificacion.predict(X_validation)
-#     pd.DataFrame(Predicciones)
-
-# #A manera de referencia se calcula la exactitud promedio
-#     Clasificacion.score(X_validation, Y_validation)
-
-# #### **5) Validación del modelo**
-
-
-# #Matriz de clasificación
-#     Y_Clasificacion = Clasificacion.predict(X_validation)
-#     Matriz_Clasificacion = pd.crosstab(Y_validation.ravel(),
-#                                     Y_Clasificacion,
-#                                     rownames=['Reales'],
-#                                     colnames=['Clasificación'])
-#     Matriz_Clasificacion
-
-# #Reporte de la clasificación
-#     print("Exactitud", Clasificacion.score(X_validation, Y_validation))
-#     print(classification_report(Y_validation, Y_Clasificacion))
-
-# #### **6) Ecuación del modelo de clasificación**
-
-# #Ecuación del modelo
-#     print("Intercept:", Clasificacion.intercept_)
-#     print('Coeficientes: \n', Clasificacion.coef_)
-
-
-# # 0=alquilar y 1=crédito
-#     HipotecaID250 = pd.DataFrame({'ingresos': [6000],
-#                                 'gastos_comunes': [1000],
-#                                 'pago_coche': [0],
-#                                 'gastos_otros': [600],
-#                                 'ahorros': [50000],
-#                                 'vivienda': [400000],
-#                                 'estado_civil': [0],
-#                                 'hijos': [2],
-#                                 'trabajo': [2]
-#                                 })
-#     Clasificacion.predict(HipotecaID250)
-
-# # 0=alquilar y 1=crédito
-#     HipotecaID251 = pd.DataFrame({'ingresos': [6745],
-#                                 'gastos_comunes': [944],
-#                                 'pago_coche': [123],
-#                                 'gastos_otros': [429],
-#                                 'ahorros': [43240],
-#                                 'vivienda': [636897],
-#                                 'estado_civil': [1],
-#                                 'hijos': [3],
-#                                 'trabajo': [6]
-#                               })
-#     Clasificacion.predict(HipotecaID251)
-
-
-#     """
-# # CIERRE DE COMENTARIO PARA LA PRACTICA 4
+# PacienteID2 = pd.DataFrame({'Texture': [24.54], 
+#                             'Area': [181.0], 
+#                             'Smoothness': [0.05263], 
+#                             'Compactness': [0.04362], 
+#                             'Symmetry': [0.1587], 
+#                             'FractalDimension': [0.05884]})
+# ClasificacionAD.predict(PacienteID2)
