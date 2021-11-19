@@ -292,6 +292,24 @@ def read_csv3():
 
         json_data_1 = data_table_1.head(10).to_json(orient='records')
 
+#_________________________________________
+
+#NO SIRVE PARA QUITAR LOS ENCABEZADOS Y PONER INDICES
+
+        Hipoteca2 = pd.read_csv(flask_file,header=None)
+
+
+        MatrizHipoteca = np.array(Hipoteca2[['ingresos', 'gastos comunes', 'pago coche', 'gastos otros', 'ahorros', 'vivienda', 'estado civil', 'hijos', 'trabajo']])
+        data_table_2 = pd.DataFrame(MatrizHipoteca)
+        json_data_2 = data_table_2.to_json()
+
+
+#__________________________________________
+
+
+
+
+
         # Se genera un gráfico de dispersión
         fig = Figure()
         fig.set_size_inches(4, 4)
@@ -331,7 +349,7 @@ def read_csv3():
 
 #     sns.pairplot(Hipoteca, hue='comprar')
 #     plt.show()
-print(plt.show())
+
 
 #     sns.scatterplot(x='ahorros', y='ingresos', data=Hipoteca, hue='comprar')
 #     plt.title('Gráfico de dispersión')
@@ -349,6 +367,8 @@ print(plt.show())
 #     MatrizInf = np.triu(CorrHipoteca)
 #     sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
 #     plt.show()
+
+
 
 #     MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche',
 #                               'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
@@ -426,9 +446,38 @@ def read_csv4():
         data_table_3 = pd.DataFrame(Hipoteca)
         json_data3 = data_table_3.head(5).to_json(orient='records')
         
-        return jsonify({'status': 'success', 'data': json_data3})
+        
+        
+                # Se genera un gráfico de dispersión
+        fig = Figure()
+        fig.set_size_inches(4, 4)
+        ax = fig.add_subplot(111)
+        # sns.scatterplot(x='ahorros', y='ingresos',
+        #                 data=Hipoteca, hue='comprar')
+
+        ax.scatter(Hipoteca['ahorros'], Hipoteca['ingresos'],
+                   c=Hipoteca['comprar'])
+        ax.set_title('Grafico de dispersión')
+        ax.set_xlabel('Ahorros')
+        ax.set_ylabel('Ingresos')
+
+        nombre_temporal_uuid = str(uuid4().hex)
+        nombre_temporal_png = 'app/static/img/' + nombre_temporal_uuid + '.png'
+
+        # Replace "app" to ""
+        new_name = nombre_temporal_png.replace('app/', '')
+
+        # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png,
+            format='png',
+        )
+
+        # Retorna imagen en base64
+        return jsonify({'status': 'success', 'data': json_data3, 'graph': new_name})
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
+        
 # #### **2) Selección de características**
 
 #     sns.pairplot(Hipoteca, hue='comprar')
@@ -515,157 +564,6 @@ def read_csv4():
 #     plt.rcParams['figure.figsize'] = (10, 7)
 #     plt.style.use('ggplot')
 #     colores=['red', 'blue', 'green', 'yellow']
-#     asignar=[]
-#     for row in MParticional.labels_:
-#         asignar.append(colores[row])
-
-#     fig = plt.figure()
-#     ax = Axes3D(fig)
-#     ax.scatter(MEstandarizada[:, 0],
-#             MEstandarizada[:, 1],
-#             MEstandarizada[:, 2], marker='o', c=asignar, s=60)
-#     ax.scatter(MParticional.cluster_centers_[:, 0],
-#             MParticional.cluster_centers_[:, 1],
-#             MParticional.cluster_centers_[:, 2], marker='o', c=colores, s=1000)
-#     plt.show()
-# #_________________________________________
-# #_____________Practica 6__________________
-# #_________________________________________
-
-# @pagina.route('/read_csv5', methods=['POST'])
-# def read_csv5():
-
-#     from google.colab import files
-#     files.upload()
-
-# #from google.colab import drive
-# #drive.mount('/content/drive')
-
-#     BCancer = pd.read_csv('WDBCOriginal.csv')
-#     BCancer
-
-#     BCancer.info()
-
-#     print(BCancer.groupby('Diagnosis').size())
-
-# #### **2) Selección de características**
-
-#     sns.pairplot(BCancer, hue='Diagnosis')
-#     plt.show()
-
-#     sns.scatterplot(x='Radius', y ='Perimeter', data=BCancer, hue='Diagnosis')
-#     plt.title('Gráfico de dispersión')
-#     plt.xlabel('Radius')
-#     plt.ylabel('Perimeter')
-#     plt.show()
-
-#     sns.scatterplot(x='Concavity', y ='ConcavePoints', data=BCancer, hue='Diagnosis')
-#     plt.title('Gráfico de dispersión')
-#     plt.xlabel('Concavity')
-#     plt.ylabel('ConcavePoints')
-#     plt.show()
-
-#     CorrBCancer = BCancer.corr(method='pearson')
-#     CorrBCancer
-
-#     print(CorrBCancer['Radius'].sort_values(ascending=False)[:10], '\n')   #Top 10 valores
-
-#     plt.figure(figsize=(14,7))
-#     MatrizInf = np.triu(CorrBCancer)
-#     sns.heatmap(CorrBCancer, cmap='RdBu_r', annot=True, mask=MatrizInf)
-#     plt.show()
-
-
-#     MatrizVariables = np.array(BCancer[['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension']])
-#     pd.DataFrame(MatrizVariables)
-# #MatrizVariables = BCancer.iloc[:, [3, 5, 6, 7, 10, 11]].values  #iloc para seleccionar filas y columnas
-
-
-# #### **3) Estandarización de datos**
-#     estandarizar = StandardScaler()                                # Se instancia el objeto StandardScaler o MinMaxScaler
-#     MEstandarizada = estandarizar.fit_transform(MatrizVariables)   # Sescalan los datos
-#     pd.DataFrame(MEstandarizada)
-
-# #### **4) Clustering Jerárquico**
-
-# #Se importan las bibliotecas de clustering jerárquico para crear el árbol
-
-#     plt.figure(figsize=(10, 7))
-#     plt.title("Pacientes con cáncer de mama")
-#     plt.xlabel('Observaciones')
-#     plt.ylabel('Distancia')
-#     Arbol = shc.dendrogram(shc.linkage(MEstandarizada, method='complete', metric='euclidean'))
-# #plt.axhline(y=7, color='orange', linestyle='--')
-# #Probar con otras medciones de distancia (euclidean, chebyshev, cityblock)
-
-# #Se crean las etiquetas de los elementos en los clusters
-#     MJerarquico = AgglomerativeClustering(n_clusters=4, linkage='complete', affinity='euclidean')
-#     MJerarquico.fit_predict(MEstandarizada)
-#     MJerarquico.labels_
-
-#     BCancer['clusterH'] = MJerarquico.labels_
-#     BCancer
-
-# #Cantidad de elementos en los clusters
-#     BCancer.groupby(['clusterH'])['clusterH'].count()
-
-#     BCancer[BCancer.clusterH == 0]
-
-#     CentroidesH = BCancer.groupby(['clusterH'])['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension'].mean()
-#     CentroidesH
-
-
-#     plt.figure(figsize=(10, 7))
-#     plt.scatter(MEstandarizada[:,0], MEstandarizada[:,1], c=MJerarquico.labels_)
-#     plt.grid()
-#     plt.show()
-
-# #### **5) Clustering particional**
-
-# #Definición de k clusters para K-means
-# #Se utiliza random_state para inicializar el generador interno de números aleatorios
-#     SSE = []
-#     for i in range(2, 12):
-#         km = KMeans(n_clusters=i, random_state=0)
-#         km.fit(MEstandarizada)
-#         SSE.append(km.inertia_)
-
-# #Se grafica SSE en función de k
-#     plt.figure(figsize=(10, 7))
-#     plt.plot(range(2, 12), SSE, marker='o')
-#     plt.xlabel('Cantidad de clusters *k*')
-#     plt.ylabel('SSE')
-#     plt.title('Elbow Method')
-#     plt.show()
-
-# # !pip install kneed
-
-#     kl = KneeLocator(range(2, 12), SSE, curve="convex", direction="decreasing")
-#     kl.elbow
-
-#     plt.style.use('ggplot')
-#     kl.plot_knee()
-
-# #Se crean las etiquetas de los elementos en los clusters
-#     MParticional = KMeans(n_clusters=5, random_state=0).fit(MEstandarizada)
-#     MParticional.predict(MEstandarizada)
-#     MParticional.labels_
-
-#     BCancer['clusterP'] = MParticional.labels_
-#     BCancer
-
-#     BCancer.groupby(['clusterP'])['clusterP'].count()
-
-#     BCancer[BCancer.clusterP == 0]
-
-#     CentroidesP = BCancer.groupby(['clusterP'])['Texture', 'Area', 'Smoothness', 'Compactness', 'Symmetry', 'FractalDimension'].mean()
-#     CentroidesP
-
-# # Gráfica de los elementos y los centros de los clusters
-
-#     plt.rcParams['figure.figsize'] = (10, 7)
-#     plt.style.use('ggplot')
-#     colores=['red', 'blue', 'green', 'yellow', 'cyan']
 #     asignar=[]
 #     for row in MParticional.labels_:
 #         asignar.append(colores[row])
