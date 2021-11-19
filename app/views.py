@@ -53,6 +53,16 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn import model_selection
+from sklearn.tree import export_graphviz
+
+
+from sklearn.tree import plot_tree
+import graphviz as g
+from graphviz import Source
+
 # ------------------------------------------------
 # _____            _______________       _________
 # ------------------------------------------------
@@ -292,24 +302,18 @@ def read_csv3():
 
         json_data_1 = data_table_1.head(10).to_json(orient='records')
 
-#_________________________________________
+# _________________________________________
 
-#NO SIRVE PARA QUITAR LOS ENCABEZADOS Y PONER INDICES
-
+# NO SIRVE PARA QUITAR LOS ENCABEZADOS Y PONER INDICES
 
         # Hipoteca2 = pd.read_csv(flask_file,header=None)
-
 
         # MatrizHipoteca = np.array(Hipoteca2[['ingresos', 'gastos comunes', 'pago coche', 'gastos otros', 'ahorros', 'vivienda', 'estado civil', 'hijos', 'trabajo']])
         # data_table_2 = pd.DataFrame(MatrizHipoteca)
         # json_data_2 = data_table_2.to_json()
 
 
-#__________________________________________
-
-
-
-
+# __________________________________________
 
         # Se genera un gráfico de dispersión
         fig = Figure()
@@ -368,7 +372,6 @@ def read_csv3():
 #     MatrizInf = np.triu(CorrHipoteca)
 #     sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
 #     plt.show()
-
 
 
 #     MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche',
@@ -446,9 +449,7 @@ def read_csv4():
 
         data_table_3 = pd.DataFrame(Hipoteca)
         json_data3 = data_table_3.head(10).to_json(orient='records')
-        
-        
-        
+
         # Se genera un gráfico de dispersión
         fig = Figure()
         fig.set_size_inches(4, 4)
@@ -478,7 +479,7 @@ def read_csv4():
         return jsonify({'status': 'success', 'data': json_data3, 'graph': new_name})
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
-        
+
 # #### **2) Selección de características**
 
 #     sns.pairplot(Hipoteca, hue='comprar')
@@ -583,54 +584,84 @@ def read_csv4():
 # #_________________________________________
 
 
-# @pagina.route('/regresionLineal', methods=['POST'])
-# def read_csv6():
+@pagina.route('/regresionLineal', methods=['POST'])
+def read_csv5():
 
-# #### **1) Importar las bibliotecas necesarias y los datos**
+    if request.method == 'POST':
 
-#     from google.colab import files
-#     files.upload()
+        flask_file = request.files['file']
 
-#     RGeofisicos = pd.read_csv('RGeofisicos.csv')
-#     RGeofisicos
+        if not flask_file.filename.endswith('.csv'):
+            return make_response(jsonify({'message': 'Seleccione un archivo CSV'}), 400)
 
-# #### **2) Gráfica de las mediciones de aceite**
+        RGeofisicos = pd.read_csv(flask_file)
+        print(RGeofisicos)
 
-#     plt.figure(figsize=(20, 5))
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC1'], color='green', marker='o', label='RC1')
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC2'], color='purple', marker='o', label='RC2')
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC3'], color='blue', marker='o', label='RC3')
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC4'], color='yellow', marker='o', label='RC4')
-#     plt.xlabel('Profundidad / Pies')
-#     plt.ylabel('Porcentaje / %')
-#     plt.title('Registros geofísicos convencionales')
-#     plt.grid(True)
-#     plt.legend()
-#     plt.show()
+        data_table_4 = pd.DataFrame(RGeofisicos)
+        json_data4 = data_table_4.head(10).to_json(orient='records')
+
+# ___________________________GRAFICA1________________________________
+
+        # Se genera un gráfico
+        fig = Figure()
+        fig.set_size_inches(20, 5)
+        ax = fig.subplots()
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC2'],
+                color='purple', marker='o', label='RC2')
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC2'],
+                color='purple', marker='o', label='RC2')
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC3'],
+                color='blue', marker='o', label='RC3')
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC4'],
+                color='yellow', marker='o', label='RC4')
+        ax.set_xlabel('Profundidad')
+        ax.set_ylabel('Porcentaje')
+        ax.set_title('Registros_geofsicos convencionales')
+        ax.grid(True)
+        ax.legend()
+
+        nombre_temporal_uuid = str(uuid4().hex)
+        nombre_temporal_png = 'app/static/img/' + nombre_temporal_uuid + '.png'
+
+        # Replace "app" to ""
+        new_name2 = nombre_temporal_png.replace('app/', '')
+
+        # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png,
+            format='png',
+        )
+
 
 # #### **3) Aplicación del algoritmo**
 
 
 # #Se seleccionan las variables predictoras (X) y la variable a pronosticar (Y)
 
-# X_train = np.array(RGeofisicos[['Profundidad', 'RC1', 'RC2','RC3']])
-# pd.DataFrame(X_train)
+        X_train = np.array(RGeofisicos[['Profundidad', 'RC1', 'RC2', 'RC3']])
+        Xpronostic = pd.DataFrame(X_train)
 
-# Y_train = np.array(RGeofisicos[['RC4']])
-# pd.DataFrame(Y_train)
+        Y_train = np.array(RGeofisicos[['RC4']])
+        ypronostic = pd.DataFrame(Y_train)
 
 # #Se entrena el modelo a través de una Regresión Lineal Múltiple
 
-# RLMultiple = linear_model.LinearRegression()
-# RLMultiple.fit(X_train, Y_train)                 #Se entrena el modelo
+        RLMultiple = linear_model.LinearRegression()
+        RLMultiple.fit(X_train, Y_train)  # Se entrena el modelo
 
 
 # #Se genera el pronóstico
-# Y_pronostico = RLMultiple.predict(X_train)
-# pd.DataFrame(Y_pronostico)
+        Y_pronostico = RLMultiple.predict(X_train)
+        Ypronostic = pd.DataFrame(Y_pronostico)
+        RGeofisicos1 = RGeofisicos
 
-# RGeofisicos['Pronostico'] = Y_pronostico
-# RGeofisicos
+        RGeofisicos1['Pronostico'] = Y_pronostico
+
+# AQUI TABLA DONDE SE ANEXA LA COLUMNA PRONOSTICO
+
+        data_table_5 = pd.DataFrame(RGeofisicos1)
+        json_data5 = data_table_5.head(10).to_json(orient='records')
+
 
 # #### **4) Obtención de los coeficientes, intercepto, error y Score**
 
@@ -642,60 +673,131 @@ def read_csv4():
 #     print("RMSE: %.4f" % mean_squared_error(Y_train, Y_pronostico, squared=False))  #True devuelve MSE, False devuelve RMSE
 #     print('Score (Bondad de ajuste): %.4f' % r2_score(Y_train, Y_pronostico))
 
-# #### **5) Conformación del modelo de pronóstico**
-
 
 # #### **6) Proyección de los valores reales y pronosticados**
 
+# ___________________________GRAFICA2________________________________
 
-#     plt.figure(figsize=(20, 5))
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC1'], color='green', marker='o', label='RC1')
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC2'], color='purple', marker='o', label='RC2')
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC3'], color='blue', marker='o', label='RC3')
-#     plt.plot(RGeofisicos['Profundidad'], RGeofisicos['RC4'], color='yellow', marker='o', label='RC4')
-#     plt.plot(RGeofisicos['Profundidad'], Y_pronostico, color='red', marker='o', label='Pronóstico')
-#     plt.xlabel('Profundidad / Pies')
-#     plt.ylabel('Porcentaje / %')
-#     plt.title('Registros geofísicos convencionales')
-#     plt.grid(True)
-#     plt.legend()
-#     plt.show()
+        # Se genera un gráfico
+        fig = Figure()
+        fig.set_size_inches(20, 5)
+        ax = fig.subplots()
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC1'],
+                color='green', marker='o', label='RC1')
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC2'],
+                color='purple', marker='o', label='RC2')
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC3'],
+                color='blue', marker='o', label='RC3')
+        ax.plot(RGeofisicos['Profundidad'], RGeofisicos['RC4'],
+                color='yellow', marker='o', label='RC4')
+        ax.set_xlabel('Profundidad')
+        ax.set_ylabel('Porcentaje')
+        ax.set_title('Registros_geofsicos convencionales')
+        ax.grid(True)
+        ax.legend()
 
-#     plt.figure(figsize=(20, 5))
-#     plt.plot(RGeofisicos['Profundidad'], Y_pronostico, color='red', marker='o', label='Pronóstico')
-#     plt.xlabel('Profundidad / Pies')
-#     plt.ylabel('Porcentaje / %')
-#     plt.title('Registros geofísicos convencionales')
-#     plt.grid(True)
-#     plt.legend()
-#     plt.show()
+        nombre_temporal_uuid2 = str(uuid4().hex)
+        nombre_temporal_png2 = 'app/static/img/' + nombre_temporal_uuid2 + '.png'
+
+        # Replace "app" to ""
+        new_name3 = nombre_temporal_png2.replace('app/', '')
+
+        # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png2,
+            format='png',
+        )
+
+
+# ___________________________GRAFICA3________________________________
+
+        # Se genera un gráfico
+        fig = Figure()
+        fig.set_size_inches(20, 5)
+        ax = fig.subplots()
+        ax.plot(RGeofisicos['Profundidad'], Y_pronostico,
+                color='red', marker='o', label='Pronóstico')
+        ax.set_xlabel('Profundidad')
+        ax.set_ylabel('Porcentaje')
+        ax.set_title('Registros_geofsicos convencionales')
+        ax.grid(True)
+        ax.legend()
+
+        nombre_temporal_uuid3 = str(uuid4().hex)
+        nombre_temporal_png3 = 'app/static/img/' + nombre_temporal_uuid3 + '.png'
+
+        # Replace "app" to ""
+        new_name4 = nombre_temporal_png3.replace('app/', '')
+
+        # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png3,
+            format='png',
+        )
+
 
 # #### **7) Nuevos pronósticos**
 
 #     ROS = pd.DataFrame({'Profundidad': [5680.5], 'RC1': [0.45], 'RC2': [0.64], 'RC3': [0.5]})
 #     RLMultiple.predict(ROS)
 
+        # Retorna imagen en base64
+        return jsonify({'status': 'success', 'data': json_data4, 'data2': json_data5, 'graph': new_name2, 'graph2': new_name3, 'graph3': new_name4})
+
+    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
+
+
 # #_________________________________________
 # #_____________Practica 11__________________
 # #_________________________________________
 
-# @pagina.route('/pronosticoArbol, methods=['POST'])
-# def read_csv8():
+
+@pagina.route('/pronosticoArbol', methods=['POST'])
+def read_csv6():
+    if request.method == 'POST':
+
+        flask_file = request.files['file']
+
+        if not flask_file.filename.endswith('.csv'):
+            return make_response(jsonify({'message': 'Seleccione un archivo CSV'}), 400)
+
+        BCancer = pd.read_csv(flask_file)
+
+        data_table_11 = pd.DataFrame(BCancer)
+        json_data11 = data_table_11.head(10).to_json(orient='records')
 
 
-# #### **2) Gráfica del área del tumor por paciente**
+# ___________________________GRAFICA1________________________________
 
 
-# plt.figure(figsize=(20, 5))
-# plt.plot(BCancer['IDNumber'], BCancer['Area'], color='green', marker='o', label='Area')
-# plt.xlabel('Paciente')
-# plt.ylabel('Tamaño del tumor')
-# plt.title('Pacientes con tumores cancerígenos')
-# plt.grid(True)
-# plt.legend()
-# plt.show()
+# **2) Gráfica del área del tumor por paciente**
 
-# #### **3) Selección de características**
+        # Se genera un gráfico
+        fig = Figure()
+        fig.set_size_inches(20, 5)
+        ax = fig.subplots()
+        ax.plot(BCancer['IDNumber'], BCancer['Area'],
+                color='green', marker='o', label='Area')
+        ax.set_xlabel('Paciente')
+        ax.set_ylabel('Tamaño del tumor')
+        ax.set_title('Pacientes con tumores cancerígenos')
+        ax.grid(True)
+        ax.legend()
+
+        nombre_temporal_uuid11 = str(uuid4().hex)
+        nombre_temporal_png11 = 'app/static/img/' + nombre_temporal_uuid11 + '.png'
+
+        # Replace "app" to ""
+        new_name11 = nombre_temporal_png11.replace('app/', '')
+
+     # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png11,
+            format='png',
+        )
+
+
+# #### **3) Selección de características** MAPA DE CALOR
 
 # plt.figure(figsize=(14,7))
 # MatrizInf = np.triu(BCancer.corr())
@@ -703,37 +805,36 @@ def read_csv4():
 # plt.show()
 
 
-
 # #### **4) Aplicación del algoritmo**
 
 
-# from sklearn.tree import DecisionTreeRegressor
-# from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-# from sklearn import model_selection
+#Se seleccionan las variables predictoras (X) y la variable a pronosticar (Y)
 
-# #Se seleccionan las variables predictoras (X) y la variable a pronosticar (Y)
-
-# X = np.array(BCancer[['Texture',
-#                       'Perimeter',
-#                       'Smoothness',	
-#                       'Compactness',	
-#                       'Symmetry',	
-#                       'FractalDimension']])
-# pd.DataFrame(X)
-
+        X = np.array(BCancer[['Texture',
+                              'Perimeter',
+                              'Smoothness',
+                              'Compactness',
+                              'Symmetry',
+                              'FractalDimension']])
+        tabla2= pd.DataFrame(X)
+        
+        json_data12 = tabla2.head(10).to_json(orient='records')
+        
 # #X = np.array(BCancer[['Radius', 'Texture', 'Perimeter', 'Smoothness', 'Compactness',	'Concavity', 'ConcavePoints', 'Symmetry',	'FractalDimension']
 # #pd.DataFrame(X)
 
-# Y = np.array(BCancer[['Area']])
-# pd.DataFrame(Y)
+        Y = np.array(BCancer[['Area']])
 
-# #Se hace la división de los datos
 
-# X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y, 
-#                                                                     test_size = 0.2, 
-#                                                                     random_state = 1234, 
-#                                                                     shuffle = True)
+ #Se hace la división de los datos
 
+        X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y,
+                                                                             test_size = 0.2,
+                                                                              random_state = 1234,
+                                                                              shuffle = True)
+
+
+#DATOS QUE SE PIDEN EN INPUT  -------------->>>>>
 # pd.DataFrame(X_train)
 # #pd.DataFrame(X_test)
 
@@ -742,31 +843,52 @@ def read_csv4():
 
 # #Se entrena el modelo a través de un Árbol de Decisión (Regresión)
 
-# PronosticoAD = DecisionTreeRegressor()
-# PronosticoAD.fit(X_train, Y_train)
+        PronosticoAD = DecisionTreeRegressor()
+        PronosticoAD.fit(X_train, Y_train)
 
 # #PronosticoAD = DecisionTreeRegressor(max_depth=8, min_samples_split=4, min_samples_leaf=2)
 # #PronosticoAD.fit(X_train, Y_train)
 
 
-# #Se genera el pronóstico
-# Y_Pronostico = PronosticoAD.predict(X_test)
+ #Se genera el pronóstico
+        Y_Pronostico = PronosticoAD.predict(X_test)
 # pd.DataFrame(Y_Pronostico)
 
-# Valores = pd.DataFrame(Y_test, Y_Pronostico)
+        Valores = pd.DataFrame(Y_test, Y_Pronostico)
 # Valores
 
-# plt.figure(figsize=(20, 5))
-# plt.plot(Y_test, color='green', marker='o', label='Y_test')
-# plt.plot(Y_Pronostico, color='red', marker='o', label='Y_Pronostico')
-# plt.xlabel('Paciente')
-# plt.ylabel('Tamaño del tumor')
-# plt.title('Pacientes con tumores cancerígenos')
-# plt.grid(True)
-# plt.legend()
-# plt.show()
 
-# r2_score(Y_test, Y_Pronostico)
+# ___________________________GRAFICA2________________________________
+
+
+# **2) Gráfica del área del tumor por paciente**
+
+        # Se genera un gráfico
+        fig = Figure()
+        fig.set_size_inches(20, 5)
+        ax = fig.subplots()
+        ax.plot(Y_test, color='green', marker='o', label='Y_test')
+        ax.plot(Y_Pronostico, color='red', marker='o', label='Y_Pronostico')
+        ax.set_xlabel('Paciente')
+        ax.set_ylabel('Tamaño del tumor')
+        ax.set_title('Pacientes con tumores cancerígenos')
+        ax.grid(True)
+        ax.legend()
+
+        nombre_temporal_uuid12 = str(uuid4().hex)
+        nombre_temporal_png12 = 'app/static/img/' + nombre_temporal_uuid12 + '.png'
+
+        # Replace "app" to ""
+        new_name12 = nombre_temporal_png12.replace('app/', '')
+
+     # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png12,
+            format='png',
+        )
+
+
+        r2_score(Y_test, Y_Pronostico)
 
 # #### **5) Obtención de los parámetros del modelo**
 
@@ -777,57 +899,77 @@ def read_csv4():
 # print("RMSE: %.4f" % mean_squared_error(Y_test, Y_Pronostico, squared=False))   #True devuelve MSE, False devuelve RMSE
 # print('Score: %.4f' % r2_score(Y_test, Y_Pronostico))
 
-# Importancia = pd.DataFrame({'Variable': list(BCancer[['Texture', 'Perimeter', 'Smoothness',	
-#                                             'Compactness', 'Symmetry', 'FractalDimension']]),
-#                             'Importancia': PronosticoAD.feature_importances_}).sort_values('Importancia', ascending=False)
+        Importancia = pd.DataFrame({'Variable': list(BCancer[['Texture', 'Perimeter', 'Smoothness',
+                                                             'Compactness', 'Symmetry', 'FractalDimension']]),
+                                                             'Importancia': PronosticoAD.feature_importances_}).sort_values('Importancia', ascending=False)
 # Importancia
-
+        tabla3= pd.DataFrame(Importancia)
+        
+        json_data13 = tabla3.head(10).to_json(orient='records')
 # #### **6) Conformación del modelo de pronóstico**
 
 
 # #!pip install graphviz
 
 # #import graphviz
-# #from sklearn.tree import export_graphviz
+# #
 
-# # Se crea un objeto para visualizar el árbol
-# # Se incluyen los nombres de las variables para imprimirlos en el árbol
-# Elementos = export_graphviz(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness', 
-#                                                            'Compactness', 'Symmetry', 'FractalDimension'])  
-# Arbol = graphviz.Source(Elementos)
+ # Se crea un objeto para visualizar el árbol
+  # Se incluyen los nombres de las variables para imprimirlos en el árbol
+        Elementos = export_graphviz(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
+                                                                   'Compactness', 'Symmetry', 'FractalDimension'])
+        Arbol = g.Source(Elementos,filename="test.gv", format="png")
+        
+        
+        
+        
+        nombre_temporal_uuid14 = str(uuid4().hex)
+        nombre_temporal_png14 = 'app/static/img/' + nombre_temporal_uuid14 + '.png'
+
+        # Replace "app" to ""
+        new_name14 = nombre_temporal_png14.replace('app/', '')
+
+     # Se guarda el gráfico en un archivo PNG
+        fig.savefig(
+            fname=nombre_temporal_png14,
+            format='png',
+        )
+        
 # Arbol
 
-# from sklearn.tree import plot_tree
-# plt.figure(figsize=(16,16))  
-# plot_tree(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness', 
+# 
+# plt.figure(figsize=(16,16))
+# plot_tree(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
 #                                          'Compactness', 'Symmetry', 'FractalDimension'])
 # plt.show()
 
 # from sklearn.tree import export_text
-# Reporte = export_text(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness', 
+# Reporte = export_text(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
 #                                                      'Compactness', 'Symmetry', 'FractalDimension'])
 # print(Reporte)
-
 
 
 # #### **7) Nuevos pronósticos**
 
 
-# AreaTumorID1 = pd.DataFrame({'Texture': [10.38], 
-#                              'Perimeter': [122.8], 
-#                              'Smoothness': [0.11840], 
-#                              'Compactness': [0.27760], 
-#                              'Symmetry': [0.2419], 
+# AreaTumorID1 = pd.DataFrame({'Texture': [10.38],
+#                              'Perimeter': [122.8],
+#                              'Smoothness': [0.11840],
+#                              'Compactness': [0.27760],
+#                              'Symmetry': [0.2419],
 #                              'FractalDimension': [0.07871]})
 # PronosticoAD.predict(AreaTumorID1)
 
+        # Retorna imagen en base64
+        return jsonify({'status': 'success', 'data': json_data11, 'data2': json_data12,'data3': json_data13,'graph':new_name11,'graph2':new_name12})
 
+    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
 # #_________________________________________
 # #_____________Practica 12__________________
 # #_________________________________________
 
 # @pagina.route('/clasificacionArbol', methods=['POST'])
-# def read_csv8():
+# def read_csv7():
 
 # from google.colab import files
 # files.upload()
@@ -846,7 +988,6 @@ def read_csv4():
 # plt.show()
 
 
-
 # #### **3) Definición de variables predictoras y variable clase**
 
 
@@ -856,11 +997,11 @@ def read_csv4():
 # print(BCancer.groupby('Diagnosis').size())
 
 # #Variables predictoras
-# X = np.array(BCancer[['Texture', 
-#                       'Area', 
-#                       'Smoothness', 
-#                       'Compactness', 
-#                       'Symmetry', 
+# X = np.array(BCancer[['Texture',
+#                       'Area',
+#                       'Smoothness',
+#                       'Compactness',
+#                       'Symmetry',
 #                       'FractalDimension']])
 # pd.DataFrame(X)
 
@@ -874,15 +1015,14 @@ def read_csv4():
 # #### **4) División de datos y aplicación del algoritmo**
 
 
-
 # from sklearn.tree import DecisionTreeClassifier
 # from sklearn.metrics import classification_report
 # from sklearn.metrics import confusion_matrix
 # from sklearn.metrics import accuracy_score
 # from sklearn import model_selection
 
-# X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, 
-#                                                                                 test_size = 0.2, 
+# X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y,
+#                                                                                 test_size = 0.2,
 #                                                                                 random_state = 0,
 #                                                                                 shuffle = True)
 
@@ -913,10 +1053,10 @@ def read_csv4():
 
 # #Matriz de clasificación
 # Y_Clasificacion = ClasificacionAD.predict(X_validation)
-# Matriz_Clasificacion = pd.crosstab(Y_validation.ravel(), 
-#                                    Y_Clasificacion, 
-#                                    rownames=['Real'], 
-#                                    colnames=['Clasificación']) 
+# Matriz_Clasificacion = pd.crosstab(Y_validation.ravel(),
+#                                    Y_Clasificacion,
+#                                    rownames=['Real'],
+#                                    colnames=['Clasificación'])
 # Matriz_Clasificacion
 
 # #Reporte de la clasificación
@@ -925,7 +1065,7 @@ def read_csv4():
 # print("Exactitud", ClasificacionAD.score(X_validation, Y_validation))
 # print(classification_report(Y_validation, Y_Clasificacion))
 
-# Importancia = pd.DataFrame({'Variable': list(BCancer[['Texture', 'Area', 'Smoothness', 
+# Importancia = pd.DataFrame({'Variable': list(BCancer[['Texture', 'Area', 'Smoothness',
 #                                                      'Compactness', 'Symmetry', 'FractalDimension']]),
 #                             'Importancia': ClasificacionAD.feature_importances_}).sort_values('Importancia', ascending=False)
 # Importancia
@@ -938,43 +1078,43 @@ def read_csv4():
 # from sklearn.tree import export_graphviz
 
 # # Se crea un objeto para visualizar el árbol
-# Elementos = export_graphviz(ClasificacionAD, 
-#                             feature_names = ['Texture', 'Area', 'Smoothness', 
+# Elementos = export_graphviz(ClasificacionAD,
+#                             feature_names = ['Texture', 'Area', 'Smoothness',
 #                                              'Compactness', 'Symmetry', 'FractalDimension'],
-#                             class_names = Y_Clasificacion)  
+#                             class_names = Y_Clasificacion)
 # Arbol = graphviz.Source(Elementos)
 # Arbol
 
 # from sklearn.tree import plot_tree
-# plt.figure(figsize=(16,16))  
-# plot_tree(ClasificacionAD, 
-#           feature_names = ['Texture', 'Area', 'Smoothness', 
+# plt.figure(figsize=(16,16))
+# plot_tree(ClasificacionAD,
+#           feature_names = ['Texture', 'Area', 'Smoothness',
 #                            'Compactness', 'Symmetry', 'FractalDimension'],
 #           class_names = Y_Clasificacion)
 # plt.show()
 
 # from sklearn.tree import export_text
-# Reporte = export_text(ClasificacionAD, 
-#                       feature_names = ['Texture', 'Area', 'Smoothness', 
+# Reporte = export_text(ClasificacionAD,
+#                       feature_names = ['Texture', 'Area', 'Smoothness',
 #                                        'Compactness', 'Symmetry', 'FractalDimension'])
 # print(Reporte)
 
 # #### **7) Nuevas clasificaciones**
 
 # #Paciente P-842302 (1) -Tumor Maligno-
-# PacienteID1 = pd.DataFrame({'Texture': [10.38], 
-#                             'Area': [1001.0], 
-#                             'Smoothness': [0.11840], 
-#                             'Compactness': [0.27760], 
-#                             'Symmetry': [0.2419], 
+# PacienteID1 = pd.DataFrame({'Texture': [10.38],
+#                             'Area': [1001.0],
+#                             'Smoothness': [0.11840],
+#                             'Compactness': [0.27760],
+#                             'Symmetry': [0.2419],
 #                             'FractalDimension': [0.07871]})
 # ClasificacionAD.predict(PacienteID1)
 
 # #Paciente P-92751 (569) -Tumor Benigno-
-# PacienteID2 = pd.DataFrame({'Texture': [24.54], 
-#                             'Area': [181.0], 
-#                             'Smoothness': [0.05263], 
-#                             'Compactness': [0.04362], 
-#                             'Symmetry': [0.1587], 
+# PacienteID2 = pd.DataFrame({'Texture': [24.54],
+#                             'Area': [181.0],
+#                             'Smoothness': [0.05263],
+#                             'Compactness': [0.04362],
+#                             'Symmetry': [0.1587],
 #                             'FractalDimension': [0.05884]})
 # ClasificacionAD.predict(PacienteID2)
