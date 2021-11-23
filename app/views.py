@@ -304,16 +304,52 @@ def read_csv3():
 
 # _________________________________________
 
-# NO SIRVE PARA QUITAR LOS ENCABEZADOS Y PONER INDICES
 
-        # Hipoteca2 = pd.read_csv(flask_file,header=None)
+# ___________________________GRAFICA DE CLUSTER________________________________
 
-        # MatrizHipoteca = np.array(Hipoteca2[['ingresos', 'gastos comunes', 'pago coche', 'gastos otros', 'ahorros', 'vivienda', 'estado civil', 'hijos', 'trabajo']])
-        # data_table_2 = pd.DataFrame(MatrizHipoteca)
-        # json_data_2 = data_table_2.to_json()
+        MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche',
+                        'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
+#     pd.DataFrame(MatrizHipoteca)
+# # MatrizHipoteca = Hipoteca.iloc[:, 0:9].values     #iloc para seleccionar filas y columnas según su posición
 
+# # **3) Aplicación del algoritmo**
 
+#     from sklearn.preprocessing import StandardScaler, MinMaxScaler
+#     # Se instancia el objeto StandardScaler o MinMaxScaler
+        estandarizar = StandardScaler()
+#     # Se calculan la media y desviación y se escalan los datos
+        MEstandarizada = estandarizar.fit_transform(MatrizHipoteca)
+
+#     pd.DataFrame(MEstandarizada)
+
+# # Se importan las bibliotecas de clustering jerárquico para crear el árbol
+
+        plt.figure(figsize=(10, 7))
+        plt.title("Casos de hipoteca")
+        plt.xlabel('Hipoteca')
+        plt.ylabel('Distancia')
+        Arbol = shc.dendrogram(shc.linkage(
+                MEstandarizada, method='complete', metric='euclidean'))
+# #plt.axhline(y=5.4, color='orange', linestyle='--')
+# # Probar con otras medciones de distancia (euclidean, chebyshev, cityblock)
+        buffer= BytesIO()
+        
+        
+        nombre_temporal_uuid001 = str(uuid4().hex)
+        nombre_temporal_png001 = 'app/static/img/' + nombre_temporal_uuid001 + '.png'
+
+        # Replace "app" to ""
+        new_name001 = nombre_temporal_png001.replace('app/', '')
+        
+
+        plt.savefig(
+            fname=nombre_temporal_png001,
+            format='png',
+        )
+        buffer.close()
+        
 # __________________________________________
+# ___________________________GRAFICA DE DISPERSION 1________________________________
 
         # Se genera un gráfico de dispersión
         fig = Figure()
@@ -341,7 +377,7 @@ def read_csv3():
         )
 
         # Retorna imagen en base64
-        return jsonify({'status': 'success', 'data': json_data_1, 'image': new_name})
+        return jsonify({'status': 'success', 'data': json_data_1, 'image': new_name,'image2': new_name001})
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
 
