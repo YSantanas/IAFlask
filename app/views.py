@@ -1026,27 +1026,16 @@ def read_csv6():
 # #import graphviz
 # #
 
+
  # Se crea un objeto para visualizar el árbol
   # Se incluyen los nombres de las variables para imprimirlos en el árbol
         Elementos = export_graphviz(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
                                                                    'Compactness', 'Symmetry', 'FractalDimension'])
+        Arbol = g.Source(Elementos,filename="test.gv", format="png")
 
-        buffer1= BytesIO()
-        
-        
-        nombre_temporal_uuid001 = str(uuid4().hex)
-        nombre_temporal_png001 = 'app/static/img/' + nombre_temporal_uuid001 + '.png'
 
-        # Replace "app" to ""
-        arbol1 = nombre_temporal_png001.replace('app/', '')
-        
 
-        plt.savefig(
-            fname=nombre_temporal_png001,
-            format='png',
-        )
-        buffer1.close()
-        
+ 
 # Arbol
 
 # 
@@ -1061,8 +1050,55 @@ def read_csv6():
         Reporte = export_text(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
                                                             'Compactness', 'Symmetry', 'FractalDimension'])
 # print(Reporte)
+#________________________TEXTO_________________
+        from fpdf import FPDF
 
 
+        archivo= "app/static/documentos/generados/arbolito11.txt"
+        f= open(archivo,'w')
+        cadena=str(Reporte)
+        f.write(cadena)
+        f.close()
+          
+  
+# save FPDF() class into 
+# a variable pdf
+        pdf = FPDF()   
+   
+# Add a page
+        pdf.add_page()
+   
+# Elegimos tipo de letra y tamaño
+        pdf.set_font("Times", size = 11)
+  
+# Abrimos el archivo en modo lectura
+        f = open(archivo, "r")
+  
+# intertamos lo abierto dentro del pdf
+        for x in f:
+            pdf.cell(200, 10, txt = x, ln = 1, align = 'C')
+   
+# Guardamos el pdf
+        pdf.output("app/static/documentos/generados/arbolito11.pdf")   
+        b = pdf.output("app/static/documentos/generados/arbolito11.pdf") 
+
+#________________________TEXTOFIN_________________
+
+        buffer2= BytesIO()
+        
+        
+        nombre_temporal_uuid002 = str(uuid4().hex)
+        nombre_temporal_png002 = 'app/static/img/' + nombre_temporal_uuid002 + '.png'
+
+        # Replace "app" to ""
+        arbol2 = nombre_temporal_png002.replace('app/', '')
+        
+
+        plt.savefig(
+            fname=nombre_temporal_png002,
+            format='png',
+        )
+        buffer2.close()
 
 
 # #### **7) Nuevos pronósticos**
@@ -1077,7 +1113,7 @@ def read_csv6():
 # PronosticoAD.predict(AreaTumorID1)
 
         # Retorna imagen en base64
-        return jsonify({'status': 'success', 'data': json_data11, 'data2': json_data12,'data3': json_data13,'graph':new_name11,'graph2':new_name12})
+        return jsonify({'status': 'success', 'data': json_data11, 'data2': json_data12,'data3': json_data13,'graph':new_name11,'graph2':new_name12, 'documento': b})
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
 # #_________________________________________
