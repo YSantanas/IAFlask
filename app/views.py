@@ -304,6 +304,38 @@ def read_csv3():
 
 # _________________________________________
 
+# ___________________________GRAFICA DE CALOR________________________________
+
+# # **2) Selección de características**
+
+
+        CorrHipoteca = Hipoteca.corr(method='pearson')
+        CorrHipoteca
+
+#     print(CorrHipoteca['ingresos'].sort_values(
+#         ascending=False)[:10], '\n')  # Top 10 valores
+#
+        plt.figure(figsize=(14, 7))
+        MatrizInf = np.triu(CorrHipoteca)
+        sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
+#     plt.show()
+        buffer= BytesIO()
+        
+        
+        nombre_temporal_uuid00 = str(uuid4().hex)
+        nombre_temporal_png00 = 'app/static/img/' + nombre_temporal_uuid00 + '.png'
+
+        # Replace "app" to ""
+        calor = nombre_temporal_png00.replace('app/', '')
+        
+
+        plt.savefig(
+            fname=nombre_temporal_png00,
+            format='png',
+        )
+        buffer.close()
+        
+
 
 # ___________________________GRAFICA DE CLUSTER________________________________
 
@@ -376,89 +408,60 @@ def read_csv3():
             format='png',
         )
 
+
+
+# __________________________________________
+# ___________________________GRAFICA DE FINAL ________________________________
+
+
+# # Se crean las etiquetas de los elementos en los clústeres
+        MJerarquico = AgglomerativeClustering(
+                 n_clusters=7, linkage='complete', affinity='euclidean')
+        MJerarquico.fit_predict(MEstandarizada)
+        #MJerarquico.labels_
+
+        Hipoteca = Hipoteca.drop(columns=['comprar'])
+        Hipoteca['clusterH'] = MJerarquico.labels_
+#     Hipoteca  IMPRIMIR CON CLUSTERH
+
+# # Cantidad de elementos en los clusters
+        Hipoteca.groupby(['clusterH'])['clusterH'].count()
+
+#     Hipoteca[Hipoteca.clusterH == 6]  impirmir los clusrter del 6
+
+        CentroidesH = Hipoteca.groupby('clusterH').mean()
+#     CentroidesH
+
+        plt.figure(figsize=(10, 7))
+        plt.scatter(MEstandarizada[:, 0],
+                         MEstandarizada[:, 1], c=MJerarquico.labels_)
+        #plt.grid()
+        #plt.show()
+        
+        buffer3= BytesIO()
+        
+        
+        nombre_temporal_uuid003 = str(uuid4().hex)
+        nombre_temporal_png003 = 'app/static/img/' + nombre_temporal_uuid003 + '.png'
+
+        # Replace "app" to ""
+        imgfinal = nombre_temporal_png003.replace('app/', '')
+        
+
+        plt.savefig(
+            fname=nombre_temporal_png003,
+            format='png',
+        )
+        buffer3.close()
+
+
         # Retorna imagen en base64
-        return jsonify({'status': 'success', 'data': json_data_1, 'image': new_name,'image2': new_name001})
+        return jsonify({'status': 'success', 'data': json_data_1, 'image': new_name,'image2': new_name001,'image3': calor,'imageFinal': imgfinal})
 
     return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
 
-#     Hipoteca.info()
-
-#     print(Hipoteca.groupby('comprar').size())
-
-# # **2) Selección de características**
 
 
-#     sns.pairplot(Hipoteca, hue='comprar')
-#     plt.show()
-
-
-#     sns.scatterplot(x='ahorros', y='ingresos', data=Hipoteca, hue='comprar')
-#     plt.title('Gráfico de dispersión')
-#     plt.xlabel('Ahorros')
-#     plt.ylabel('Ingresos')
-#     plt.show()
-
-#     CorrHipoteca = Hipoteca.corr(method='pearson')
-#     CorrHipoteca
-
-#     print(CorrHipoteca['ingresos'].sort_values(
-#         ascending=False)[:10], '\n')  # Top 10 valores
-#
-#     plt.figure(figsize=(14, 7))
-#     MatrizInf = np.triu(CorrHipoteca)
-#     sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
-#     plt.show()
-
-
-#     MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche',
-#                               'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
-#     pd.DataFrame(MatrizHipoteca)
-# # MatrizHipoteca = Hipoteca.iloc[:, 0:9].values     #iloc para seleccionar filas y columnas según su posición
-
-# # **3) Aplicación del algoritmo**
-
-#     from sklearn.preprocessing import StandardScaler, MinMaxScaler
-#     # Se instancia el objeto StandardScaler o MinMaxScaler
-#     estandarizar = StandardScaler()
-#     # Se calculan la media y desviación y se escalan los datos
-#     MEstandarizada = estandarizar.fit_transform(MatrizHipoteca)
-
-#     pd.DataFrame(MEstandarizada)
-
-# # Se importan las bibliotecas de clustering jerárquico para crear el árbol
-
-#     plt.figure(figsize=(10, 7))
-#     plt.title("Casos de hipoteca")
-#     plt.xlabel('Hipoteca')
-#     plt.ylabel('Distancia')
-#     Arbol = shc.dendrogram(shc.linkage(
-#         MEstandarizada, method='complete', metric='euclidean'))
-# #plt.axhline(y=5.4, color='orange', linestyle='--')
-# # Probar con otras medciones de distancia (euclidean, chebyshev, cityblock)
-
-# # Se crean las etiquetas de los elementos en los clústeres
-#     MJerarquico = AgglomerativeClustering(
-#         n_clusters=7, linkage='complete', affinity='euclidean')
-#     MJerarquico.fit_predict(MEstandarizada)
-#     MJerarquico.labels_
-
-#     Hipoteca = Hipoteca.drop(columns=['comprar'])
-#     Hipoteca['clusterH'] = MJerarquico.labels_
-#     Hipoteca
-
-# # Cantidad de elementos en los clusters
-#     Hipoteca.groupby(['clusterH'])['clusterH'].count()
-
-#     Hipoteca[Hipoteca.clusterH == 6]
-
-#     CentroidesH = Hipoteca.groupby('clusterH').mean()
-#     CentroidesH
-
-#     plt.figure(figsize=(10, 7))
-#     plt.scatter(MEstandarizada[:, 0],
-#                 MEstandarizada[:, 1], c=MJerarquico.labels_)
-#     plt.grid()
-#     plt.show()
 # # _________________________________________
 # # _____________Practica 5__________________
 # # _________________________________________
@@ -486,6 +489,32 @@ def read_csv4():
         data_table_3 = pd.DataFrame(Hipoteca)
         json_data3 = data_table_3.head(10).to_json(orient='records')
 
+
+
+#GRAFICAS_________________________________-
+
+
+# #### **2) Selección de características**
+
+        sns.pairplot(Hipoteca, hue='comprar')
+        
+        buffer3= BytesIO()
+        
+        
+        nombre_temporal_inicio = str(uuid4().hex)
+        nombre_temporal_pngini = 'app/static/img/' + nombre_temporal_inicio + '.png'
+
+        # Replace "app" to ""
+        imginicio = nombre_temporal_pngini.replace('app/', '')
+        
+        plt.savefig(
+            fname=nombre_temporal_pngini,
+            format='png',
+        )
+        buffer3.close()
+
+#__________________GRAFICA2_________________________________-
+
         # Se genera un gráfico de dispersión
         fig = Figure()
         fig.set_size_inches(4, 4)
@@ -499,102 +528,142 @@ def read_csv4():
         ax.set_xlabel('Ahorros')
         ax.set_ylabel('Ingresos')
 
-        nombre_temporal_uuid = str(uuid4().hex)
-        nombre_temporal_png = 'app/static/img/' + nombre_temporal_uuid + '.png'
+        nombre_temporal_disper = str(uuid4().hex)
+        nombre_temporal_pngdis = 'app/static/img/' + nombre_temporal_disper + '.png'
 
         # Replace "app" to ""
-        new_name = nombre_temporal_png.replace('app/', '')
+        imgdisp = nombre_temporal_pngdis.replace('app/', '')
 
         # Se guarda el gráfico en un archivo PNG
         fig.savefig(
-            fname=nombre_temporal_png,
+            fname=nombre_temporal_pngdis,
             format='png',
         )
 
-        # Retorna imagen en base64
-        return jsonify({'status': 'success', 'data': json_data3, 'graph': new_name})
-
-    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
-
-# #### **2) Selección de características**
-
-#     sns.pairplot(Hipoteca, hue='comprar')
-#     plt.show()
-
-#     sns.scatterplot(x='ahorros', y ='ingresos', data=Hipoteca, hue='comprar')
-#     plt.title('Gráfico de dispersión')
-#     plt.xlabel('Ahorros')
-#     plt.ylabel('Ingresos')
-#     plt.show()
 
 
-#     CorrHipoteca = Hipoteca.corr(method='pearson')
+
+#__________________GRAFICA3 MAPA CALOR_________________________________-
+
+        CorrHipoteca = Hipoteca.corr(method='pearson')
 #     CorrHipoteca
 
-#     print(CorrHipoteca['ingresos'].sort_values(ascending=False)[:10], '\n')   #Top 10 valores
+        plt.figure(figsize=(14,7))
+        MatrizInf = np.triu(CorrHipoteca)
+        sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
 
-#     plt.figure(figsize=(14,7))
-#     MatrizInf = np.triu(CorrHipoteca)
-#     sns.heatmap(CorrHipoteca, cmap='RdBu_r', annot=True, mask=MatrizInf)
-#     plt.show()
+        buffer5= BytesIO()
+        
+        
+        nombre_temporal_uuid003 = str(uuid4().hex)
+        nombre_temporal_png003 = 'app/static/img/' + nombre_temporal_uuid003 + '.png'
 
+        # Replace "app" to ""
+        calor = nombre_temporal_png003.replace('app/', '')
+        
 
-#     MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche', 'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
-#     pd.DataFrame(MatrizHipoteca)
+        plt.savefig(
+            fname=nombre_temporal_png003,
+            format='png',
+        )
+        buffer5.close()
+
+        MatrizHipoteca = np.array(Hipoteca[['ingresos', 'gastos_comunes', 'pago_coche', 'gastos_otros', 'ahorros', 'vivienda', 'estado_civil', 'hijos', 'trabajo']])
+#     pd.DataFrame(MatrizHipoteca)  ---imprimir tabla
 # #MatrizHipoteca = Hipoteca.iloc[:, 0:9].values     #iloc para seleccionar filas y columnas según su posición
 
+
+#__________________GRAFICA3 CURVA_________________________________-
 # #### **3) Aplicación del algoritmo**
 
 
-#     estandarizar = StandardScaler()                               # Se instancia el objeto StandardScaler o MinMaxScaler
-#     MEstandarizada = estandarizar.fit_transform(MatrizHipoteca)   # Se calculan la media y desviación y se escalan los datos
+        estandarizar = StandardScaler()                               # Se instancia el objeto StandardScaler o MinMaxScaler
+        MEstandarizada = estandarizar.fit_transform(MatrizHipoteca)   # Se calculan la media y desviación y se escalan los datos
 
-#     pd.DataFrame(MEstandarizada)
+#     pd.DataFrame(MEstandarizada)  ---imprimir tabla
 
 
 # #Definición de k clusters para K-means
 # #Se utiliza random_state para inicializar el generador interno de números aleatorios
-#     SSE = []
-#     for i in range(2, 12):
-#         km = KMeans(n_clusters=i, random_state=0)
-#         km.fit(MEstandarizada)
-#         SSE.append(km.inertia_)
+        SSE = []
+        for i in range(2, 12):
+            km = KMeans(n_clusters=i, random_state=0)
+            km.fit(MEstandarizada)
+            SSE.append(km.inertia_)
 
 # #Se grafica SSE en función de k
-#     plt.figure(figsize=(10, 7))
-#     plt.plot(range(2, 12), SSE, marker='o')
-#     plt.xlabel('Cantidad de clusters *k*')
-#     plt.ylabel('SSE')
-#     plt.title('Elbow Method')
+        plt.figure(figsize=(10, 7))
+        plt.plot(range(2, 12), SSE, marker='o')
+        plt.xlabel('Cantidad de clusters *k*')
+        plt.ylabel('SSE')
+        plt.title('Elbow Method')
 #     plt.show()
+
+        buffer5= BytesIO()
+        
+        
+        nombre_temporal_uuid004 = str(uuid4().hex)
+        nombre_temporal_png004 = 'app/static/img/' + nombre_temporal_uuid004 + '.png'
+
+        # Replace "app" to ""
+        grafCurva = nombre_temporal_png004.replace('app/', '')
+        
+
+        plt.savefig(
+            fname=nombre_temporal_png004,
+            format='png',
+        )
+        buffer5.close()
 
 
 # # !pip install kneed
 
+#__________________GRAFICA3 CURVA2_________________________________
 
-#     kl = KneeLocator(range(2, 12), SSE, curve="convex", direction="decreasing")
+        kl = KneeLocator(range(2, 12), SSE, curve="convex", direction="decreasing")
 #     kl.elbow
 
-#     plt.style.use('ggplot')
-#     kl.plot_knee()
+        plt.style.use('ggplot')
+        kl.plot_knee()
+        buffer6= BytesIO()
+        
+        
+        nombre_temporal_uuid005 = str(uuid4().hex)
+        nombre_temporal_png005 = 'app/static/img/' + nombre_temporal_uuid005 + '.png'
+
+        # Replace "app" to ""
+        grafCurva2 = nombre_temporal_png005.replace('app/', '')
+        
+
+        plt.savefig(
+            fname=nombre_temporal_png005,
+            format='png',
+        )
+        buffer5.close()
+
+
 
 # #Se crean las etiquetas de los elementos en los clusters
-#     MParticional = KMeans(n_clusters=4, random_state=0).fit(MEstandarizada)
-#     MParticional.predict(MEstandarizada)
+        MParticional = KMeans(n_clusters=4, random_state=0).fit(MEstandarizada)
+        MParticional.predict(MEstandarizada)
 #     MParticional.labels_
 
-#     Hipoteca = Hipoteca.drop(columns=['comprar'])
-#     Hipoteca['clusterP'] = MParticional.labels_
+        Hipoteca = Hipoteca.drop(columns=['comprar'])
+        Hipoteca['clusterP'] = MParticional.labels_
 #     Hipoteca
 
 # #Cantidad de elementos en los clusters
-#     Hipoteca.groupby(['clusterP'])['clusterP'].count()
+        Hipoteca.groupby(['clusterP'])['clusterP'].count()
 
-#     Hipoteca[Hipoteca.clusterP == 0]
+        Hipoteca[Hipoteca.clusterP == 0]
 
 # #Obtención de los centroides
-#     CentroidesP = Hipoteca.groupby('clusterP').mean()
-#     CentroidesP
+        CentroidesP = Hipoteca.groupby('clusterP').mean()
+        #CentroidesP
+        
+        tabla2= pd.DataFrame(CentroidesP)
+        #imprime la ultima tabla
+        json_data2 = tabla2.head(10).to_json(orient='records')
 
 
 # # Gráfica de los elementos y los centros de los clusters
@@ -615,6 +684,13 @@ def read_csv4():
 #             MParticional.cluster_centers_[:, 1],
 #             MParticional.cluster_centers_[:, 2], marker='o', c=colores, s=1000)
 #     plt.show()
+
+        # Retorna imagen en base64
+        return jsonify({'status': 'success', 'data': json_data3, 'graph': imginicio, 'graph2': imgdisp,'graph3': calor})
+
+    return jsonify({'status': 'error', 'message': 'Error al leer el archivo'})
+
+
 # #_________________________________________
 # #_____________Practica 7__________________
 # #_________________________________________
@@ -954,35 +1030,39 @@ def read_csv6():
   # Se incluyen los nombres de las variables para imprimirlos en el árbol
         Elementos = export_graphviz(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
                                                                    'Compactness', 'Symmetry', 'FractalDimension'])
-        Arbol = g.Source(Elementos,filename="test.gv", format="png")
+
+        buffer1= BytesIO()
         
         
-        
-        
-        nombre_temporal_uuid14 = str(uuid4().hex)
-        nombre_temporal_png14 = 'app/static/img/' + nombre_temporal_uuid14 + '.png'
+        nombre_temporal_uuid001 = str(uuid4().hex)
+        nombre_temporal_png001 = 'app/static/img/' + nombre_temporal_uuid001 + '.png'
 
         # Replace "app" to ""
-        new_name14 = nombre_temporal_png14.replace('app/', '')
+        arbol1 = nombre_temporal_png001.replace('app/', '')
+        
 
-     # Se guarda el gráfico en un archivo PNG
-        fig.savefig(
-            fname=nombre_temporal_png14,
+        plt.savefig(
+            fname=nombre_temporal_png001,
             format='png',
         )
+        buffer1.close()
         
 # Arbol
 
 # 
-# plt.figure(figsize=(16,16))
-# plot_tree(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
-#                                          'Compactness', 'Symmetry', 'FractalDimension'])
+        plt.figure(figsize=(16,16))
+        plot_tree(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
+                                                 'Compactness', 'Symmetry', 'FractalDimension'])
+ 
+
 # plt.show()
 
-# from sklearn.tree import export_text
-# Reporte = export_text(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
-#                                                      'Compactness', 'Symmetry', 'FractalDimension'])
+        from sklearn.tree import export_text
+        Reporte = export_text(PronosticoAD, feature_names = ['Texture', 'Perimeter', 'Smoothness',
+                                                            'Compactness', 'Symmetry', 'FractalDimension'])
 # print(Reporte)
+
+
 
 
 # #### **7) Nuevos pronósticos**
